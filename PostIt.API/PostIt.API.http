@@ -1,0 +1,6 @@
+@PostIt.API_HostAddress = http://localhost:5069
+
+GET {{PostIt.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
