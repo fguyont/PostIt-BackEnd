@@ -5,6 +5,10 @@ VisualStudioVersion = 17.14.36518.9 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostIt.API", "PostIt.API\PostIt.API.csproj", "{B3381436-AADE-43F1-97F0-0ABA0FD81679}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostIt.Database", "PostIt.Database\PostIt.Database.csproj", "{BAD26576-775F-43D7-A0D7-A7D461B06376}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostIt.Domain", "PostIt.Domain\PostIt.Domain.csproj", "{E8B6224B-1B73-4C8B-8F4A-46FB12FB0D11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{B3381436-AADE-43F1-97F0-0ABA0FD81679}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3381436-AADE-43F1-97F0-0ABA0FD81679}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3381436-AADE-43F1-97F0-0ABA0FD81679}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAD26576-775F-43D7-A0D7-A7D461B06376}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAD26576-775F-43D7-A0D7-A7D461B06376}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAD26576-775F-43D7-A0D7-A7D461B06376}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAD26576-775F-43D7-A0D7-A7D461B06376}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8B6224B-1B73-4C8B-8F4A-46FB12FB0D11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8B6224B-1B73-4C8B-8F4A-46FB12FB0D11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8B6224B-1B73-4C8B-8F4A-46FB12FB0D11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8B6224B-1B73-4C8B-8F4A-46FB12FB0D11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
