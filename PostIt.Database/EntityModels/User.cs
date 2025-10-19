@@ -12,18 +12,26 @@ namespace PostIt.Database.EntityModels
 
         [Required]
         [MaxLength(50)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [Required]
         [MaxLength(50)]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [Required]
         [MaxLength(255)]
-        public string Password { get; set; }
+        public required string Password { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
+
+        public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+        public virtual ICollection<Subject> Subjects { get; set; } = new List<Subject>();
     }
 }

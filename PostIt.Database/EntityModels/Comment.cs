@@ -1,0 +1,29 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace PostIt.Database.EntityModels
+{
+    [Table("Comments")]
+    public class Comment
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
+
+        [Required]
+        [MaxLength(2000)]
+        public required string Text { get; set; }
+
+        public DateTime Date { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public long PostId { get; set; }
+
+        public virtual required Post Post { get; set; }
+
+        public long UserId { get; set; }
+
+        public virtual required User User { get; set; }
+    }
+}
