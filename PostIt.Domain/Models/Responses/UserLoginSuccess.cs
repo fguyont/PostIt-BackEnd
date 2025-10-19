@@ -6,12 +6,12 @@ namespace PostIt.Domain.Models.Responses
     {
         [Required]
         [MaxLength(50)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [Required]
         [MaxLength(50)]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
-        public string Token { get; set; }
+        public required string Token { get; set; }
     }
 }

@@ -6,10 +6,10 @@ namespace PostIt.Domain.Models.Requests
     {
         [Required]
         [MaxLength(50)]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [Required]
         [MaxLength(255)]
-        public string Password { get; set; }
+        public required string Password { get; set; }
     }
 }
