@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PostIt.Database.EntityModels;
+﻿using PostIt.Database.EntityModels;
 using PostIt.Domain.Interfaces.IManagers;
 using PostIt.Domain.Models;
 
@@ -22,7 +21,8 @@ namespace PostIt.Database.Managers
                 Email = userToRegister.Email,
                 Password = userToRegister.Password,
                 CreatedAt = userToRegister.CreatedAt,
-                UpdatedAt = userToRegister.UpdatedAt
+                UpdatedAt = userToRegister.UpdatedAt,
+                IsActive = true
             };
             _postItDbContext.Users.Add(user);
             await _postItDbContext.SaveChangesAsync();
@@ -34,41 +34,11 @@ namespace PostIt.Database.Managers
                 Email = user.Email,
                 Password = user.Password,
                 CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
+                UpdatedAt = user.UpdatedAt,
+                IsActive = user.IsActive
             };
 
             return userRegistered;
-        }
-
-        public async Task<UserModel?> FindUserByEmail(string email)
-        {
-            User? userToFind = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
-
-            if (userToFind != null)
-            {
-                return new UserModel
-                {
-                    Id = userToFind.Id,
-                    Name = userToFind.Name,
-                    Email = userToFind.Email,
-                    Password = userToFind.Password,
-                    CreatedAt = userToFind.CreatedAt,
-                    UpdatedAt = userToFind.UpdatedAt
-                };
-            }
-            return null;
-        }
-
-        public async Task<bool> UserExists(string name, string email)
-        {
-            User? userToFind = await _postItDbContext.Users.FirstOrDefaultAsync(u => (u.Name.ToLower().Equals(name.ToLower())) || (u.Email.Equals(email)));
-
-            if (userToFind != null)
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }
