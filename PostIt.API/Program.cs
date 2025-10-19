@@ -25,6 +25,8 @@ builder.Services.AddScoped<IAuthBusiness, AuthBusiness>();
 builder.Services.AddScoped<IAuthManager, AuthManager>();
 builder.Services.AddScoped<IUserBusiness, UserBusiness>();
 builder.Services.AddScoped<IUserManager, UserManager>();
+builder.Services.AddScoped<ISubjectBusiness, SubjectBusiness>();
+builder.Services.AddScoped<ISubjectManager, SubjectManager>();
 
 builder.Services.AddHttpContextAccessor();
 
