@@ -16,17 +16,19 @@ namespace PostIt.Domain.Business
     public class AuthBusiness : IAuthBusiness
     {
         public IAuthManager _authManager;
+        public IUserManager _userManager;
         private readonly IConfiguration _configuration;
 
-        public AuthBusiness(IAuthManager authManager, IConfiguration configuration)
+        public AuthBusiness(IAuthManager authManager, IUserManager userManager, IConfiguration configuration)
         {
             _authManager = authManager;
+            _userManager = userManager;
             _configuration = configuration;
         }
 
         public async Task<UserLoginSuccess?> Register(RegisterRequest registerRequest)
         {
-            if (await _authManager.UserExists(registerRequest.Name, registerRequest.Email) == true)
+            if (await _userManager.UserExists(registerRequest.Name, registerRequest.Email) == true)
             {
                 return null;
             }
@@ -37,7 +39,8 @@ namespace PostIt.Domain.Business
                 Email = registerRequest.Email,
                 Password = BCrypt.HashPassword(registerRequest.Password),
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = false
             };
 
             if (await _authManager.Register(userToRegister) == null)
@@ -50,11 +53,11 @@ namespace PostIt.Domain.Business
 
         public async Task<UserLoginSuccess?> Login(LoginRequest loginRequest)
         {
-            UserModel? user = await _authManager.FindUserByEmail(loginRequest.Email);
+            UserModel? user = await _userManager.GetUserByEmail(loginRequest.Email);
 
-            if (user == null || BCrypt.Verify(loginRequest.Password, user.Password) == false)
+            if (user == null || BCrypt.Verify(loginRequest.Password, user.Password) == false || user.IsActive == false)
             {
-                return null; //returning null intentionally to show that login was unsuccessful
+                return null;
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
