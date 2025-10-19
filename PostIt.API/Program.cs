@@ -23,6 +23,10 @@ builder.Services.AddDbContext<PostItDbContext>(
 
 builder.Services.AddScoped<IAuthBusiness, AuthBusiness>();
 builder.Services.AddScoped<IAuthManager, AuthManager>();
+builder.Services.AddScoped<IUserBusiness, UserBusiness>();
+builder.Services.AddScoped<IUserManager, UserManager>();
+
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAuthentication(opt =>
 {
