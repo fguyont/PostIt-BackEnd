@@ -18,7 +18,7 @@ namespace PostIt.API.Controllers
 
         [Authorize]
         [HttpGet]
-        [Route("[controller]/all")]
+        [Route("[controller]/All")]
         public IActionResult GetAllSubjects()
         {
             List<SubjectModel> subjects = new List<SubjectModel>();
@@ -29,7 +29,7 @@ namespace PostIt.API.Controllers
 
         [Authorize]
         [HttpPost]
-        [Route("[controller]/new")]
+        [Route("[controller]/New")]
         public async Task<IActionResult> CreateSubject([FromBody] CreateSubjectRequest createSubjectRequest)
         {
             SubjectModel subjectCreated = await _subjectBusiness.CreateSubject(createSubjectRequest);
