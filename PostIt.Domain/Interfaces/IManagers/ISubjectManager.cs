@@ -1,9 +1,4 @@
 ﻿using PostIt.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PostIt.Domain.Interfaces.IManagers
 {
@@ -11,6 +6,8 @@ namespace PostIt.Domain.Interfaces.IManagers
     {
         List<SubjectModel> GetAllSubjects();
 
-        Task<SubjectModel> CreateSubject(SubjectModel subject);
+        Task<SubjectModel?> GetSubjectById(long id);
+
+        Task<SubjectModel> CreateSubject(SubjectModel subjectToCreate);
     }
 }

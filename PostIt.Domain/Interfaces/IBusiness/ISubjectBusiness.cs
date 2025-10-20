@@ -7,6 +7,8 @@ namespace PostIt.Domain.Interfaces.IBusiness
     {
         public List<SubjectModel> GetAllSubjects();
 
-        public Task<SubjectModel> CreateSubject(AddSubjectRequest addSubjectRequest);
+        public Task<SubjectModel> GetSubjectById(long id);
+
+        public Task<SubjectModel> CreateSubject(CreateSubjectRequest createSubjectRequest);
     }
 }

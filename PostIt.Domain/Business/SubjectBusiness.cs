@@ -2,11 +2,6 @@
 using PostIt.Domain.Interfaces.IManagers;
 using PostIt.Domain.Models;
 using PostIt.Domain.Models.Requests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PostIt.Domain.Business
 {
@@ -23,12 +18,17 @@ namespace PostIt.Domain.Business
             return _subjectManager.GetAllSubjects();
         }
 
-        public async Task<SubjectModel> CreateSubject(AddSubjectRequest addSubjectRequest)
+        public async Task<SubjectModel?> GetSubjectById(long id)
+        {
+            return await _subjectManager.GetSubjectById(id) ?? null;
+        }
+
+        public async Task<SubjectModel?> CreateSubject(CreateSubjectRequest createSubjectRequest)
         {
             return await _subjectManager.CreateSubject(new SubjectModel 
-            { Name = addSubjectRequest.Name, 
-                Description = addSubjectRequest.Description }
-            );
+            { Name = createSubjectRequest.Name, 
+                Description = createSubjectRequest.Description }
+            ) ?? null;
         }
     }
 }

@@ -1,11 +1,7 @@
-﻿using PostIt.Database.EntityModels;
+﻿using Microsoft.EntityFrameworkCore;
+using PostIt.Database.EntityModels;
 using PostIt.Domain.Interfaces.IManagers;
 using PostIt.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PostIt.Database.Managers
 {
@@ -32,12 +28,23 @@ namespace PostIt.Database.Managers
             return subjectModels;
         }
 
-        public async Task<SubjectModel> CreateSubject(SubjectModel subjectToAdd)
+        public async Task<SubjectModel?> GetSubjectById(long id)
+        {
+            Subject? subjectToGet = await _postItDbContext.Subjects.FirstOrDefaultAsync(s => s.Id == id);
+
+            if (subjectToGet != null)
+            {
+                return new SubjectModel { Id = subjectToGet.Id, Name = subjectToGet.Name, Description = subjectToGet.Description };
+            }
+            return null;
+        }
+
+        public async Task<SubjectModel> CreateSubject(SubjectModel subjectToCreate)
         {
             Subject subject = new Subject
             {
-                Name = subjectToAdd.Name,
-                Description = subjectToAdd.Description
+                Name = subjectToCreate.Name,
+                Description = subjectToCreate.Description
             };
             _postItDbContext.Subjects.Add(subject);
             await _postItDbContext.SaveChangesAsync();
