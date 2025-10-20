@@ -45,7 +45,7 @@ namespace PostIt.Database.Managers
 
         public async Task<PostModel?> GetPostById(long id)
         {
-            Post? postToGet = await _postItDbContext.Posts.FirstOrDefaultAsync(p => p.Id == id);
+            Post? postToGet = await _postItDbContext.Posts.FirstOrDefaultAsync(p => p.Id == id && p.IsActive == true);
 
             if (postToGet == null)
             {
@@ -53,7 +53,7 @@ namespace PostIt.Database.Managers
             }
 
             Subject? subjectProperty = await _postItDbContext.Subjects.FirstOrDefaultAsync(s => s.Id == postToGet.SubjectId);
-            User? userProperty = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Id == postToGet.UserId);
+            User? userProperty = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Id == postToGet.UserId && u.IsActive == true);
 
             if (subjectProperty != null && userProperty != null)
             {
@@ -76,7 +76,7 @@ namespace PostIt.Database.Managers
         public async Task<PostModel?> CreatePost(PostModel postToCreate, long subjectId, long userId)
         {
             Subject? subjectProperty = await _postItDbContext.Subjects.FirstOrDefaultAsync(s => s.Id == subjectId);
-            User? userProperty = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            User? userProperty = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Id == userId && u.IsActive == true);
 
             if (subjectProperty != null && userProperty != null)
             {
@@ -115,11 +115,16 @@ namespace PostIt.Database.Managers
         }
         public async Task<PostModel?> UpdatePost(PostModel postDataToUpdate)
         {
-            Post? postToUpdate = await _postItDbContext.Posts.FirstOrDefaultAsync(p => p.Id == postDataToUpdate.Id);
+            Post? postToUpdate = await _postItDbContext.Posts.FirstOrDefaultAsync(p => p.Id == postDataToUpdate.Id && p.IsActive == true);
+
+            if (postToUpdate == null)
+            {
+                return null;
+            }
 
             postToUpdate.Title = postDataToUpdate.Title;
             postToUpdate.Text = postDataToUpdate.Text;
-            postToUpdate.UpdatedAt = DateTime.UtcNow;
+            postToUpdate.UpdatedAt = postDataToUpdate.UpdatedAt;
 
             _postItDbContext.Posts.Update(postToUpdate);
             await _postItDbContext.SaveChangesAsync();
@@ -143,11 +148,18 @@ namespace PostIt.Database.Managers
 
         public async Task<PostModel?> UnactivatePost(long id)
         {
-            Post? postToUnactivate = await _postItDbContext.Posts.FirstOrDefaultAsync(p => p.Id == id);
+            Post? postToUnactivate = await _postItDbContext.Posts.FirstOrDefaultAsync(p => p.Id == id && p.IsActive == true);
 
             if (postToUnactivate == null)
             {
                 return null;
+            }
+
+            List<Comment> commentsToUnactivate = _postItDbContext.Comments.Where(c => c.PostId == id && c.IsActive == true).ToList();
+
+            foreach (Comment comment in commentsToUnactivate)
+            {
+                comment.IsActive = false;
             }
 
             postToUnactivate.IsActive = false;

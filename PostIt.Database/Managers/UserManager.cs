@@ -16,7 +16,7 @@ namespace PostIt.Database.Managers
 
         public async Task<UserModel?> GetUserById(long id)
         {
-            User? userToFind = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+            User? userToFind = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Id == id && u.IsActive && true);
 
             if (userToFind != null)
             {
@@ -36,7 +36,7 @@ namespace PostIt.Database.Managers
 
         public async Task<UserModel?> GetUserByEmail(string email)
         {
-            User? userToFind = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+            User? userToFind = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower() && u.IsActive == true);
 
             if (userToFind != null)
             {
@@ -56,7 +56,7 @@ namespace PostIt.Database.Managers
 
         public async Task<bool> UserExists(string name, string email)
         {
-            User? userToFind = await _postItDbContext.Users.FirstOrDefaultAsync(u => (u.Name.ToLower().Equals(name.ToLower())) || (u.Email.Equals(email)));
+            User? userToFind = await _postItDbContext.Users.FirstOrDefaultAsync(u => (u.Name.ToLower().Equals(name.ToLower()) || u.Email.Equals(email)) && u.IsActive == true);
 
             if (userToFind != null)
             {

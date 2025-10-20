@@ -18,7 +18,7 @@ namespace PostIt.Domain.Models
 
         public long PostId { get; set; }
 
-        public required string PostName { get; set; }
+        public required string PostTitle { get; set; }
 
         public long UserId { get; set; }
 

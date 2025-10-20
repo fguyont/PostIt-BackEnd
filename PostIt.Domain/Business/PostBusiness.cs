@@ -59,6 +59,7 @@ namespace PostIt.Domain.Business
             {
                 postToUpdate.Title = createPostRequest.Title;
                 postToUpdate.Text = createPostRequest.Text;
+                postToUpdate.UpdatedAt = DateTime.UtcNow;
                 return await _postManager.UpdatePost(postToUpdate);
             }
             return null;
