@@ -90,12 +90,14 @@ namespace PostIt.Database.Managers
 
         public async Task<UserModel?> UnactivateConnectedUser(long id)
         {
-            User? userToUnactivate = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Id == id && u.IsActive == true);
+            User? userToUnactivate = await _postItDbContext.Users.Include(u => u.Subjects).FirstOrDefaultAsync(u => u.Id == id && u.IsActive == true);
 
             if (userToUnactivate == null)
             {
                 return null;
             }
+
+            userToUnactivate.Subjects.Clear();
 
             List<Post> postsToUnactivate = _postItDbContext.Posts.Where(p => p.UserId == id && p.IsActive == true).ToList();
 
