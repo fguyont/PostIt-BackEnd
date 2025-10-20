@@ -9,7 +9,6 @@ namespace PostIt.Database.Managers
     {
         private readonly PostItDbContext _postItDbContext;
 
-
         public SubjectManager(PostItDbContext postItDbContext)
         {
             _postItDbContext = postItDbContext;
@@ -57,6 +56,48 @@ namespace PostIt.Database.Managers
             };
 
             return subjectAdded;
+        }
+
+        public async Task<bool> Subscribe(long subjectId, long UserId)
+        {
+            Subject? subjectToSub = await _postItDbContext.Subjects.Include(s => s.Users).FirstOrDefaultAsync(s => s.Id == subjectId);
+            User? userToSub = await _postItDbContext.Users.Include(u => u.Subjects).FirstOrDefaultAsync(u => u.Id == UserId);
+
+            if (subjectToSub == null || userToSub == null)
+            {
+                return false;
+            }
+
+            User? userAlreadySubbed = subjectToSub.Users.FirstOrDefault(u => u.Id == UserId);
+            if (userAlreadySubbed != null)
+            {
+                return false;
+            }
+
+            subjectToSub.Users.Add(userToSub);
+            await _postItDbContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> Unsubscribe(long subjectId, long UserId)
+        {
+            Subject? subjectToUnsub = await _postItDbContext.Subjects.Include(s => s.Users).FirstOrDefaultAsync(s => s.Id == subjectId);
+            User? userToUnSub = await _postItDbContext.Users.Include(u => u.Subjects).FirstOrDefaultAsync(u => u.Id == UserId);
+
+            if (subjectToUnsub == null || userToUnSub == null)
+            {
+                return false;
+            }
+
+            User? userAlreadyUnsubbed = subjectToUnsub.Users.FirstOrDefault(u => u.Id == UserId);
+            if (userAlreadyUnsubbed == null)
+            {
+                return false;
+            }
+
+            subjectToUnsub.Users.Remove(userToUnSub);
+            await _postItDbContext.SaveChangesAsync();
+            return true;
         }
     }
 }

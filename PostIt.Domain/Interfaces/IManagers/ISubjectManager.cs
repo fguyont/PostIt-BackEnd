@@ -9,5 +9,9 @@ namespace PostIt.Domain.Interfaces.IManagers
         Task<SubjectModel?> GetSubjectById(long id);
 
         Task<SubjectModel> CreateSubject(SubjectModel subjectToCreate);
+
+        Task<bool> Subscribe(long subjectId, long UserId);
+
+        Task<bool> Unsubscribe(long subjectId, long UserId);
     }
 }
