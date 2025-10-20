@@ -16,15 +16,15 @@ namespace PostIt.Database.Managers
 
         public List<PostModel> GetAllPosts(long subjectId)
         {
-            List<Post> posts = _postItDbContext.Posts.Where(u => u.SubjectId == subjectId && u.IsActive == true).ToList();
+            List<Post> posts = _postItDbContext.Posts.Where(u => u.SubjectId == subjectId && u.IsActive == true).Include(p => p.Subject).Include(p => p.User).ToList();
 
             List<PostModel> postModels = new List<PostModel>();
 
             foreach (var post in posts)
             {
-                Subject? s = _postItDbContext.Subjects.FirstOrDefault(s => s.Id == post.SubjectId);
-                User? u = _postItDbContext.Users.FirstOrDefault(u => u.Id == post.User.Id);
-                if (s != null && u != null)
+                Subject? subjectProperty = _postItDbContext.Subjects.FirstOrDefault(s => s.Id == post.SubjectId);
+                User? userProperty = _postItDbContext.Users.FirstOrDefault(u => u.Id == post.User.Id);
+                if (subjectProperty != null && userProperty != null)
                 {
                     postModels.Add(new PostModel
                     {
@@ -34,9 +34,9 @@ namespace PostIt.Database.Managers
                         CreatedAt = post.CreatedAt,
                         UpdatedAt = post.UpdatedAt,
                         SubjectId = post.SubjectId,
-                        SubjectName = s.Name,
+                        SubjectName = subjectProperty.Name,
                         UserId = post.UserId,
-                        UserName = u.Name
+                        UserName = userProperty.Name
                     });
                 }
             }
@@ -55,22 +55,23 @@ namespace PostIt.Database.Managers
             Subject? subjectProperty = await _postItDbContext.Subjects.FirstOrDefaultAsync(s => s.Id == postToGet.SubjectId);
             User? userProperty = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Id == postToGet.UserId && u.IsActive == true);
 
-            if (subjectProperty != null && userProperty != null)
+            if (subjectProperty == null || userProperty == null)
             {
-                return new PostModel
-                {
-                    Title = postToGet.Title,
-                    Text = postToGet.Text,
-                    CreatedAt = postToGet.CreatedAt,
-                    UpdatedAt = postToGet.UpdatedAt,
-                    IsActive = postToGet.IsActive,
-                    SubjectId = subjectProperty.Id,
-                    SubjectName = subjectProperty.Name,
-                    UserId = userProperty.Id,
-                    UserName = userProperty.Name
-                };
+                return null;
             }
-            return null;
+            return new PostModel
+            {
+                Id = postToGet.Id,
+                Title = postToGet.Title,
+                Text = postToGet.Text,
+                CreatedAt = postToGet.CreatedAt,
+                UpdatedAt = postToGet.UpdatedAt,
+                IsActive = postToGet.IsActive,
+                SubjectId = subjectProperty.Id,
+                SubjectName = subjectProperty.Name,
+                UserId = userProperty.Id,
+                UserName = userProperty.Name
+            };
         }
 
         public async Task<PostModel?> CreatePost(PostModel postToCreate, long subjectId, long userId)
@@ -78,40 +79,41 @@ namespace PostIt.Database.Managers
             Subject? subjectProperty = await _postItDbContext.Subjects.FirstOrDefaultAsync(s => s.Id == subjectId);
             User? userProperty = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Id == userId && u.IsActive == true);
 
-            if (subjectProperty != null && userProperty != null)
+            if (subjectProperty == null || userProperty == null)
             {
-                Post postToInsert = new Post
-                {
-                    Title = postToCreate.Title,
-                    Text = postToCreate.Text,
-                    CreatedAt = postToCreate.CreatedAt,
-                    UpdatedAt = postToCreate.UpdatedAt,
-                    IsActive = true,
-                    SubjectId = subjectId,
-                    Subject = subjectProperty,
-                    UserId = userId,
-                    User = userProperty
-                };
-                _postItDbContext.Posts.Add(postToInsert);
-                await _postItDbContext.SaveChangesAsync();
-
-                PostModel postCreated = new PostModel
-                {
-                    Id = postToInsert.Id,
-                    Title = postToInsert.Title,
-                    Text = postToInsert.Text,
-                    CreatedAt = postToInsert.CreatedAt,
-                    UpdatedAt = postToInsert.UpdatedAt,
-                    IsActive = postToInsert.IsActive,
-                    SubjectId = postToInsert.SubjectId,
-                    SubjectName = postToInsert.Subject.Name,
-                    UserId = postToInsert.UserId,
-                    UserName = postToInsert.User.Name
-                };
-
-                return postCreated;
+                return null;
             }
-            return null;
+
+            Post postToInsert = new Post
+            {
+                Title = postToCreate.Title,
+                Text = postToCreate.Text,
+                CreatedAt = postToCreate.CreatedAt,
+                UpdatedAt = postToCreate.UpdatedAt,
+                IsActive = true,
+                SubjectId = subjectId,
+                Subject = subjectProperty,
+                UserId = userId,
+                User = userProperty
+            };
+            _postItDbContext.Posts.Add(postToInsert);
+            await _postItDbContext.SaveChangesAsync();
+
+            PostModel postCreated = new PostModel
+            {
+                Id = postToInsert.Id,
+                Title = postToInsert.Title,
+                Text = postToInsert.Text,
+                CreatedAt = postToInsert.CreatedAt,
+                UpdatedAt = postToInsert.UpdatedAt,
+                IsActive = postToInsert.IsActive,
+                SubjectId = postToInsert.SubjectId,
+                SubjectName = postToInsert.Subject.Name,
+                UserId = postToInsert.UserId,
+                UserName = postToInsert.User.Name
+            };
+
+            return postCreated;
         }
         public async Task<PostModel?> UpdatePost(PostModel postDataToUpdate)
         {
@@ -165,7 +167,7 @@ namespace PostIt.Database.Managers
             postToUnactivate.IsActive = false;
             postToUnactivate.UpdatedAt = DateTime.UtcNow;
 
-            _postItDbContext.Posts.Update(postToUnactivate);    
+            _postItDbContext.Posts.Update(postToUnactivate);
             await _postItDbContext.SaveChangesAsync();
 
             PostModel postUnactivated = new PostModel
