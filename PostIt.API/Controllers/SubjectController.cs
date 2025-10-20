@@ -30,13 +30,13 @@ namespace PostIt.API.Controllers
         [Authorize]
         [HttpPost]
         [Route("[controller]/new")]
-        public async Task<IActionResult> CreateSubject([FromBody] AddSubjectRequest addSubjectRequest)
+        public async Task<IActionResult> CreateSubject([FromBody] CreateSubjectRequest createSubjectRequest)
         {
-            SubjectModel subjectAdded = await _subjectBusiness.CreateSubject(addSubjectRequest);
+            SubjectModel subjectCreated = await _subjectBusiness.CreateSubject(createSubjectRequest);
 
-            if (subjectAdded != null)
+            if (subjectCreated != null)
             {
-                return Ok(subjectAdded);
+                return Ok(subjectCreated);
             }
             return BadRequest(new { message = "Subject creation failed."});
         }

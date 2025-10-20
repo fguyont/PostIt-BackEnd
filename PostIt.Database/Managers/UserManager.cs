@@ -2,7 +2,6 @@
 using PostIt.Database.EntityModels;
 using PostIt.Domain.Interfaces.IManagers;
 using PostIt.Domain.Models;
-using PostIt.Domain.Models.Responses;
 
 namespace PostIt.Database.Managers
 {

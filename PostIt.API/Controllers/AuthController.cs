@@ -17,7 +17,6 @@ namespace PostIt.API.Controllers
             _authBusiness = authBusiness;
         }
 
-        // POST: auth/register
         [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)

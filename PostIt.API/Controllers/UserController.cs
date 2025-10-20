@@ -34,7 +34,7 @@ namespace PostIt.API.Controllers
 
         [Authorize]
         [HttpGet]
-        [Route("[controller]/me")]
+        [Route("[controller]/Me")]
         public async Task<ActionResult> GetConnectedUser()
         {
             string? userEmail = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
