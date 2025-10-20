@@ -4,7 +4,7 @@ namespace PostIt.Domain.Interfaces.IManagers
 {
     public interface ICommentManager
     {
-        public List<CommentModel> GetComments(long postId);
+        public List<CommentModel> GetAllComments(long postId);
 
         public Task<CommentModel?> GetCommentById(long id);
 

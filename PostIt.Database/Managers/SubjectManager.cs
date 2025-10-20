@@ -32,11 +32,11 @@ namespace PostIt.Database.Managers
         {
             Subject? subjectToGet = await _postItDbContext.Subjects.FirstOrDefaultAsync(s => s.Id == id);
 
-            if (subjectToGet != null)
+            if (subjectToGet == null)
             {
-                return new SubjectModel { Id = subjectToGet.Id, Name = subjectToGet.Name, Description = subjectToGet.Description };
+                return null;
             }
-            return null;
+            return new SubjectModel { Id = subjectToGet.Id, Name = subjectToGet.Name, Description = subjectToGet.Description };
         }
 
         public async Task<SubjectModel> CreateSubject(SubjectModel subjectToCreate)

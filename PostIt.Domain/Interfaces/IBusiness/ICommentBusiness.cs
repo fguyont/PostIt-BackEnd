@@ -5,7 +5,7 @@ namespace PostIt.Domain.Interfaces.IBusiness
 {
     public interface ICommentBusiness
     {
-        List<CommentModel> GetComments(long postId);
+        public List<CommentModel> GetAllComments(long postId);
 
         public Task<CommentModel> GetCommentById(long id);
 

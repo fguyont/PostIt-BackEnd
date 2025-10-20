@@ -18,9 +18,9 @@ namespace PostIt.Domain.Business
             _userManager = userManager;
         }
 
-        public List<CommentModel> GetComments(long postId)
+        public List<CommentModel> GetAllComments(long postId)
         {
-            return _commentManager.GetComments(postId);
+            return _commentManager.GetAllComments(postId);
         }
 
         public async Task<CommentModel?> GetCommentById(long id)

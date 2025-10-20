@@ -2,7 +2,6 @@
 using PostIt.Database.EntityModels;
 using PostIt.Domain.Interfaces.IManagers;
 using PostIt.Domain.Models;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace PostIt.Database.Managers
 {
@@ -15,9 +14,9 @@ namespace PostIt.Database.Managers
             _postItDbContext = postItDbContext;
         }
 
-        public List<CommentModel> GetComments(long postId)
+        public List<CommentModel> GetAllComments(long postId)
         {
-            List<Comment> comments = _postItDbContext.Comments.Where(c => c.PostId == postId && c.IsActive == true).ToList();
+            List<Comment> comments = _postItDbContext.Comments.Where(c => c.PostId == postId && c.IsActive == true).Include(c => c.Post).Include(c => c.User).ToList();
             List<CommentModel> commentModels = new List<CommentModel>();
 
             foreach (Comment comment in comments)
@@ -50,21 +49,23 @@ namespace PostIt.Database.Managers
             Post? postProperty = await _postItDbContext.Posts.FirstOrDefaultAsync(p => p.Id == commentToGet.PostId && p.IsActive == true);
             User? userProperty = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Id == commentToGet.UserId && u.IsActive == true);
 
-            if (postProperty != null && userProperty != null)
+            if (postProperty == null || userProperty == null)
             {
-                return new CommentModel
-                {
-                    Text = commentToGet.Text,
-                    CreatedAt = commentToGet.CreatedAt,
-                    UpdatedAt = commentToGet.UpdatedAt,
-                    IsActive = commentToGet.IsActive,
-                    PostId = postProperty.Id,
-                    PostTitle = postProperty.Title,
-                    UserId = userProperty.Id,
-                    UserName = userProperty.Name
-                };
+                return null;
             }
-            return null;
+
+            return new CommentModel
+            {
+                Id = commentToGet.Id,
+                Text = commentToGet.Text,
+                CreatedAt = commentToGet.CreatedAt,
+                UpdatedAt = commentToGet.UpdatedAt,
+                IsActive = commentToGet.IsActive,
+                PostId = postProperty.Id,
+                PostTitle = postProperty.Title,
+                UserId = userProperty.Id,
+                UserName = userProperty.Name
+            };
         }
 
         public async Task<CommentModel?> CreateComment(CommentModel commentToCreate, long postId, long userId)
@@ -72,37 +73,39 @@ namespace PostIt.Database.Managers
             Post? postProperty = await _postItDbContext.Posts.FirstOrDefaultAsync(p => p.Id == postId && p.IsActive == true);
             User? userProperty = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Id == userId && u.IsActive == true);
 
-            if (postProperty != null && userProperty != null)
+            if (postProperty == null || userProperty == null)
             {
-                Comment commentToInsert = new Comment
-                {
-                    Text = commentToCreate.Text,
-                    CreatedAt = commentToCreate.CreatedAt,
-                    UpdatedAt = commentToCreate.UpdatedAt,
-                    IsActive = true,
-                    PostId = postProperty.Id,
-                    Post = postProperty,
-                    UserId = userProperty.Id,
-                    User = userProperty
-                };
-                _postItDbContext.Comments.Add(commentToInsert);
-                await _postItDbContext.SaveChangesAsync();
-
-                CommentModel commentCreated = new CommentModel
-                {
-                    Text = commentToInsert.Text,
-                    CreatedAt = commentToInsert.CreatedAt,
-                    UpdatedAt = commentToInsert.UpdatedAt,
-                    IsActive = commentToInsert.IsActive,
-                    PostId = commentToInsert.PostId,
-                    PostTitle = commentToInsert.Post.Title,
-                    UserId = commentToInsert.UserId,
-                    UserName = commentToInsert.User.Name
-                };
-
-                return commentCreated;
+                return null;
             }
-            return null;
+
+            Comment commentToInsert = new Comment
+            {
+                Text = commentToCreate.Text,
+                CreatedAt = commentToCreate.CreatedAt,
+                UpdatedAt = commentToCreate.UpdatedAt,
+                IsActive = true,
+                PostId = postProperty.Id,
+                Post = postProperty,
+                UserId = userProperty.Id,
+                User = userProperty
+            };
+            _postItDbContext.Comments.Add(commentToInsert);
+            await _postItDbContext.SaveChangesAsync();
+
+            CommentModel commentCreated = new CommentModel
+            {
+                Id = commentToInsert.Id,
+                Text = commentToInsert.Text,
+                CreatedAt = commentToInsert.CreatedAt,
+                UpdatedAt = commentToInsert.UpdatedAt,
+                IsActive = commentToInsert.IsActive,
+                PostId = commentToInsert.PostId,
+                PostTitle = commentToInsert.Post.Title,
+                UserId = commentToInsert.UserId,
+                UserName = commentToInsert.User.Name
+            };
+
+            return commentCreated;
         }
 
         public async Task<CommentModel?> UpdateComment(CommentModel commentDataToUpdate)

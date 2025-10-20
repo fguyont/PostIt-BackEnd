@@ -18,7 +18,7 @@ namespace PostIt.API.Controllers
         private readonly IUserBusiness _userBusiness;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CommentController(CommentBusiness commentBusiness, ISubjectBusiness subjectBusiness, IPostBusiness postBusiness, IUserBusiness userBusiness, IHttpContextAccessor httpContextAccessor)
+        public CommentController(ICommentBusiness commentBusiness, ISubjectBusiness subjectBusiness, IPostBusiness postBusiness, IUserBusiness userBusiness, IHttpContextAccessor httpContextAccessor)
         {
             _commentBusiness = commentBusiness;
             _subjectBusiness = subjectBusiness;
@@ -30,7 +30,7 @@ namespace PostIt.API.Controllers
         [Authorize]
         [HttpGet]
         [Route("Subject/{subjectId}/Post/{postId}/[Controller]/All")]
-        public async Task<IActionResult> GetComments(long subjectId, long postId)
+        public async Task<IActionResult> GetAllComments(long subjectId, long postId)
         {
             SubjectModel? subject = await _subjectBusiness.GetSubjectById(subjectId);
 
@@ -47,7 +47,7 @@ namespace PostIt.API.Controllers
             }
 
             List<CommentModel> comments = new List<CommentModel>();
-            comments = _commentBusiness.GetComments(postId);
+            comments = _commentBusiness.GetAllComments(postId);
 
             return Ok(comments);
         }
