@@ -8,6 +8,10 @@ namespace PostIt.Domain.Interfaces.IManagers
 
         public Task<UserModel?> GetUserByEmail(string email);
 
+        public Task<UserModel?> UpdateConnectedUser(UserModel userToUpdate);
+
+        public Task<UserModel?> UnactivateConnectedUser(long id);
+
         public Task<bool> UserExists(string name, string email);
     }
 }
