@@ -14,7 +14,9 @@ namespace PostIt.Database.EntityModels
         [MaxLength(50)]
         public required string Title { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
 
         [Required]
         [MaxLength(5000)]

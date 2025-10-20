@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace PostIt.Domain.Models
 {
-    public class Post
+    public class PostModel
     {
         public long Id { get; set; }
 
@@ -17,7 +10,9 @@ namespace PostIt.Domain.Models
         [MaxLength(50)]
         public required string Title { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
 
         [Required]
         [MaxLength(5000)]
