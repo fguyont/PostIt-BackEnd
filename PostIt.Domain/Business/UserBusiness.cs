@@ -16,97 +16,45 @@ namespace PostIt.Domain.Business
             _userManager = userManager;
         }
 
-        public async Task<GetUserResponse?> GetUserById(long id)
+        public async Task<UserModel?> GetUserByIdAsync(long id)
         {
-            UserModel? userModel = await _userManager.GetUserById(id);
-
-            if (userModel == null)
-            {
-                return null;
-            }
-            return new GetUserResponse
-            {
-                Id = userModel.Id,
-                Name = userModel.Name,
-                Email = userModel.Email,
-                CreatedAt = userModel.CreatedAt,
-                UpdatedAt = userModel.UpdatedAt
-            };
+            return await _userManager.GetUserByIdAsync(id) ?? null;
         }
 
-        public async Task<GetUserResponse?> GetUserByEmail(string email)
+        public async Task<UserModel?> GetUserByEmailAsync(string email)
         {
-            UserModel? userModel = await _userManager.GetUserByEmail(email);
-
-            if (userModel == null)
-            {
-                return null;
-            }
-            return new GetUserResponse
-            {
-                Id = userModel.Id,
-                Name = userModel.Name,
-                Email = userModel.Email,
-                CreatedAt = userModel.CreatedAt,
-                UpdatedAt = userModel.UpdatedAt
-            };
+            return await _userManager.GetUserByEmailAsync(email) ?? null;
         }
 
-        public async Task<GetUserResponse?> UpdateConnectedUser(RegisterRequest registerRequest, long id)
+        public async Task<UserModel?> UpdateConnectedUserAsync(RegisterUpdateUserRequest registerUpdateUserRequest, long id)
         {
-            if (await _userManager.UserExists(registerRequest.Name, registerRequest.Email) == true)
+            if (await DoesUserExistAsync(registerUpdateUserRequest) == true)
             {
                 return null;
             }
-            GetUserResponse? getUserResponse = await GetUserById(id);
-            if (getUserResponse == null)
-            {
-                return null;
-            }
-            UserModel userToUpdate = new UserModel
-            {
-                Id = getUserResponse.Id,
-                Name = registerRequest.Name,
-                Email = registerRequest.Email,
-                Password = BCrypt.HashPassword(registerRequest.Password),
-                CreatedAt = getUserResponse.CreatedAt,
-                UpdatedAt = DateTime.UtcNow,
-                IsActive = true
-            };
-            UserModel? userUpdated = await _userManager.UpdateConnectedUser(userToUpdate);
-
-            if (userUpdated == null)
+            UserModel? userToUpdate = await GetUserByIdAsync(id);
+            if (userToUpdate == null)
             {
                 return null;
             }
 
-            return new GetUserResponse
-            {
-                Id = userUpdated.Id,
-                Name = userUpdated.Name,
-                Email = userUpdated.Email,
-                CreatedAt = userUpdated.CreatedAt,
-                UpdatedAt = userUpdated.UpdatedAt
-            };
+            userToUpdate.Name = registerUpdateUserRequest.Name;
+            userToUpdate.Email = registerUpdateUserRequest.Email;
+            userToUpdate.Password = BCrypt.HashPassword(registerUpdateUserRequest.Password);
+            userToUpdate.UpdatedAt = DateTime.UtcNow;
+            UserModel? userUpdated = await _userManager.UpdateConnectedUserAsync(userToUpdate);
+
+            return userUpdated ?? null;
         }
 
-        public async Task<GetUserResponse?> UnactivateConnectedUser(long id)
+        public async Task<UserModel?> UnactivateConnectedUserAsync(long id)
         {
-            UserModel? userModel = await _userManager.UnactivateConnectedUser(id);
+            return await _userManager.UnactivateConnectedUserAsync(id) ?? null;
+        }
 
-            if (userModel == null)
-            {
-                return null;
-            }
-
-            return new GetUserResponse
-            {
-                Id = userModel.Id,
-                Name= userModel.Name,
-                Email = userModel.Email,
-                CreatedAt = userModel.CreatedAt,
-                UpdatedAt = userModel.UpdatedAt
-            };
+        public async Task<bool> DoesUserExistAsync(RegisterUpdateUserRequest registerUpdateUserRequest)
+        {
+            return await _userManager.DoesUserExistAsync(registerUpdateUserRequest.Name, registerUpdateUserRequest.Email);
         }
     }
 }

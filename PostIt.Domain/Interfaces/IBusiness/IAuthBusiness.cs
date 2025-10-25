@@ -5,8 +5,8 @@ namespace PostIt.Domain.Interfaces.IBusiness
 {
     public interface IAuthBusiness
     {
-        public Task<UserLoginSuccess?> Register(RegisterRequest registerRequest);
+        public Task<UserLoginSuccess?> RegisterAsync(RegisterUpdateUserRequest registerUserRequest);
 
-        public Task<UserLoginSuccess?> Login(LoginRequest loginRequest);
+        public Task<UserLoginSuccess?> LoginAsync(LoginRequest loginRequest);
     }
 }

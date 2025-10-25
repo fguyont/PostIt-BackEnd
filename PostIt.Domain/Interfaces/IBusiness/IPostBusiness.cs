@@ -5,14 +5,14 @@ namespace PostIt.Domain.Interfaces.IBusiness
 {
     public interface IPostBusiness
     {
-        public List<PostModel> GetAllPosts(long subjectId);
+        public Task<List<PostModel>> GetPostsBySubjectIdAsync(long subjectId);
 
-        public Task<PostModel> GetPostById(long id);
+        public Task<PostModel?> GetPostByIdAsync(long id);
 
-        public Task<PostModel?> CreatePost(CreatePostRequest createPostRequest, long subjectId, long userId);
+        public Task<PostModel?> CreatePostAsync(CreateUpdatePostRequest createPostRequest, long subjectId, long userId);
 
-        public Task<PostModel?> UpdatePost(CreatePostRequest createPostRequest, long postId);
+        public Task<PostModel?> UpdatePostAsync(CreateUpdatePostRequest updatePostRequest, long postId);
 
-        public Task<PostModel?> UnactivatePost(long id);
+        public Task<PostModel?> UnactivatePostAsync(long id);
     }
 }

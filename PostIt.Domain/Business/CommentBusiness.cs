@@ -18,20 +18,20 @@ namespace PostIt.Domain.Business
             _userManager = userManager;
         }
 
-        public List<CommentModel> GetAllComments(long postId)
+        public async Task<List<CommentModel>> GetAllCommentsAsync(long postId)
         {
-            return _commentManager.GetAllComments(postId);
+            return await _commentManager.GetAllCommentsAsync(postId);
         }
 
-        public async Task<CommentModel?> GetCommentById(long id)
+        public async Task<CommentModel?> GetCommentByIdAsync(long id)
         {
-            return await _commentManager.GetCommentById(id) ?? null;
+            return await _commentManager.GetCommentByIdAsync(id) ?? null;
         }
 
-        public async Task<CommentModel?> CreateComment(CreateCommentRequest createCommentRequest, long postId, long userId)
+        public async Task<CommentModel?> CreateCommentAsync(CreateUpdateCommentRequest createCommentRequest, long postId, long userId)
         {
-            PostModel? p = await _postManager.GetPostById(postId);
-            UserModel? u = await _userManager.GetUserById(userId);
+            PostModel? p = await _postManager.GetPostByIdAsync(postId);
+            UserModel? u = await _userManager.GetUserByIdAsync(userId);
 
             if (p != null && u != null)
             {
@@ -40,32 +40,32 @@ namespace PostIt.Domain.Business
                     Text = createCommentRequest.Text,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
-                    IsActive = false,
+                    IsActive = true,
                     PostId = p.Id,
                     PostTitle = p.Title,
                     UserId = u.Id,
                     UserName = u.Name
                 };
-                return await _commentManager.CreateComment(commentToCreate, postId, userId);
+                return await _commentManager.CreateCommentAsync(commentToCreate, postId, userId);
             }
             return null;
         }
 
-        public async Task<CommentModel?> UpdateComment(CreateCommentRequest createCommentRequest, long commentId)
+        public async Task<CommentModel?> UpdateCommentAsync(CreateUpdateCommentRequest updateCommentRequest, long commentId)
         {
-            CommentModel? commentToUpdate = await GetCommentById(commentId);
+            CommentModel? commentToUpdate = await GetCommentByIdAsync(commentId);
             if (commentToUpdate != null)
             {
-                commentToUpdate.Text = createCommentRequest.Text;
+                commentToUpdate.Text = updateCommentRequest.Text;
                 commentToUpdate.UpdatedAt = DateTime.UtcNow;
-                return await _commentManager.UpdateComment(commentToUpdate);
+                return await _commentManager.UpdateCommentAsync(commentToUpdate);
             }
             return null;
         }
 
-        public async Task<CommentModel?> UnactivateComment(long id)
+        public async Task<CommentModel?> UnactivateCommentAsync(long id)
         {
-            return await _commentManager.UnactivateComment(id) ?? null;
+            return await _commentManager.UnactivateCommentAsync(id) ?? null;
         }
     }
 }

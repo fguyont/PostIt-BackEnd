@@ -4,14 +4,14 @@ namespace PostIt.Domain.Interfaces.IManagers
 {
     public interface ISubjectManager
     {
-        List<SubjectModel> GetAllSubjects();
+        public Task<List<SubjectModel>> GetAllSubjectsAsync();
 
-        Task<SubjectModel?> GetSubjectById(long id);
+        public Task<SubjectModel?> GetSubjectByIdAsync(long id);
 
-        Task<SubjectModel> CreateSubject(SubjectModel subjectToCreate);
+        public Task<SubjectModel?> CreateSubjectAsync(SubjectModel subjectToCreate);
 
-        Task<bool> Subscribe(long subjectId, long UserId);
+        public Task<bool> SubscribeAsync(long subjectId, long UserId);
 
-        Task<bool> Unsubscribe(long subjectId, long UserId);
+        public Task<bool> UnsubscribeAsync(long subjectId, long UserId);
     }
 }

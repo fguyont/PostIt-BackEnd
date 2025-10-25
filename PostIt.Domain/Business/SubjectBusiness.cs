@@ -16,19 +16,19 @@ namespace PostIt.Domain.Business
             _subjectManager = subjectManager;
             _userManager = userManager;
         }
-        public List<SubjectModel> GetAllSubjects()
+        public async Task<List<SubjectModel>> GetAllSubjectsAsync()
         {
-            return _subjectManager.GetAllSubjects();
+            return await _subjectManager.GetAllSubjectsAsync();
         }
 
-        public async Task<SubjectModel?> GetSubjectById(long id)
+        public async Task<SubjectModel?> GetSubjectByIdAsync(long id)
         {
-            return await _subjectManager.GetSubjectById(id) ?? null;
+            return await _subjectManager.GetSubjectByIdAsync(id) ?? null;
         }
 
-        public async Task<SubjectModel?> CreateSubject(CreateSubjectRequest createSubjectRequest)
+        public async Task<SubjectModel?> CreateSubjectAsync(CreateSubjectRequest createSubjectRequest)
         {
-            return await _subjectManager.CreateSubject(new SubjectModel
+            return await _subjectManager.CreateSubjectAsync(new SubjectModel
             {
                 Name = createSubjectRequest.Name,
                 Description = createSubjectRequest.Description
@@ -36,13 +36,13 @@ namespace PostIt.Domain.Business
             ) ?? null;
         }
 
-        public async Task<UserSubjectSuccess?> Subscribe(long subjectId, long userId)
+        public async Task<SubUnsubSuccess?> SubscribeAsync(long subjectId, long userId)
         {
-            if (await _subjectManager.Subscribe(subjectId, userId) == true)
+            if (await _subjectManager.SubscribeAsync(subjectId, userId) == true)
             {
-                UserModel? userModel = await _userManager.GetUserById(userId);
-                SubjectModel? subjectModel = await _subjectManager.GetSubjectById(subjectId);
-                return (userModel == null || subjectModel == null) ? null : new UserSubjectSuccess
+                UserModel? userModel = await _userManager.GetUserByIdAsync(userId);
+                SubjectModel? subjectModel = await _subjectManager.GetSubjectByIdAsync(subjectId);
+                return (userModel == null || subjectModel == null) ? null : new SubUnsubSuccess
                 {
                     UserId = userModel.Id,
                     UserName = userModel.Name,
@@ -53,13 +53,13 @@ namespace PostIt.Domain.Business
             return null;
         }
 
-        public async Task<UserSubjectSuccess?> Unsubscribe(long subjectId, long userId)
+        public async Task<SubUnsubSuccess?> UnsubscribeAsync(long subjectId, long userId)
         {
-            if (await _subjectManager.Unsubscribe(subjectId, userId) == true)
+            if (await _subjectManager.UnsubscribeAsync(subjectId, userId) == true)
             {
-                UserModel? userModel = await _userManager.GetUserById(userId);
-                SubjectModel? subjectModel = await _subjectManager.GetSubjectById(subjectId);
-                return (userModel == null || subjectModel == null) ? null : new UserSubjectSuccess
+                UserModel? userModel = await _userManager.GetUserByIdAsync(userId);
+                SubjectModel? subjectModel = await _subjectManager.GetSubjectByIdAsync(subjectId);
+                return (userModel == null || subjectModel == null) ? null : new SubUnsubSuccess
                 {
                     UserId = userModel.Id,
                     UserName = userModel.Name,

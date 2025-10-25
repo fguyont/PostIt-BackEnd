@@ -6,14 +6,14 @@ namespace PostIt.Domain.Interfaces.IBusiness
 {
     public interface ISubjectBusiness
     {
-        public List<SubjectModel> GetAllSubjects();
+        public Task<List<SubjectModel>> GetAllSubjectsAsync();
 
-        public Task<SubjectModel> GetSubjectById(long id);
+        public Task<SubjectModel?> GetSubjectByIdAsync(long id);
 
-        public Task<SubjectModel> CreateSubject(CreateSubjectRequest createSubjectRequest);
+        public Task<SubjectModel?> CreateSubjectAsync(CreateSubjectRequest createSubjectRequest);
 
-        public Task<UserSubjectSuccess?> Subscribe(long subjectId, long userId);
+        public Task<SubUnsubSuccess?> SubscribeAsync(long subjectId, long userId);
 
-        public Task<UserSubjectSuccess?> Unsubscribe(long subjectId, long userId);
+        public Task<SubUnsubSuccess?> UnsubscribeAsync(long subjectId, long userId);
     }
 }

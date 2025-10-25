@@ -4,6 +4,6 @@ namespace PostIt.Domain.Interfaces.IManagers
 {
     public interface IAuthManager
     {
-        public Task<UserModel> Register(UserModel userToRegister);
+        public Task<UserModel?> RegisterAsync(UserModel userToRegister);
     }
 }

@@ -4,14 +4,14 @@ namespace PostIt.Domain.Interfaces.IManagers
 {
     public interface IPostManager
     {
-        public List<PostModel> GetAllPosts(long subjectId);
+        public Task<List<PostModel>> GetPostsBySubjectIdAsync(long subjectId);
 
-        public Task<PostModel?> GetPostById(long id);
+        public Task<PostModel?> GetPostByIdAsync(long id);
 
-        public Task<PostModel?> CreatePost(PostModel postToCreate, long subjectId, long userId);
+        public Task<PostModel?> CreatePostAsync(PostModel postToCreate, long subjectId, long userId);
 
-        public Task<PostModel?> UpdatePost(PostModel postToUpdate);
+        public Task<PostModel?> UpdatePostAsync(PostModel postToUpdate);
 
-        public Task<PostModel?> UnactivatePost(long id);
+        public Task<PostModel?> UnactivatePostAsync(long id);
     }
 }

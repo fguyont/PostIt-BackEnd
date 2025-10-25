@@ -26,36 +26,31 @@ namespace PostIt.Domain.Business
             _configuration = configuration;
         }
 
-        public async Task<UserLoginSuccess?> Register(RegisterRequest registerRequest)
+        public async Task<UserLoginSuccess?> RegisterAsync(RegisterUpdateUserRequest registerUserRequest)
         {
-            if (await _userManager.UserExists(registerRequest.Name, registerRequest.Email) == true)
-            {
-                return null;
-            }
-
             UserModel userToRegister = new UserModel
             {
-                Name = registerRequest.Name,
-                Email = registerRequest.Email,
-                Password = BCrypt.HashPassword(registerRequest.Password),
+                Name = registerUserRequest.Name,
+                Email = registerUserRequest.Email,
+                Password = BCrypt.HashPassword(registerUserRequest.Password),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                IsActive = false
+                IsActive = true
             };
 
-            if (await _authManager.Register(userToRegister) == null)
+            if (await _authManager.RegisterAsync(userToRegister) == null)
             {
                 return null;
             }
       
-            return await Login(new LoginRequest { Email = registerRequest.Email, Password = registerRequest.Password });
+            return await LoginAsync(new LoginRequest { Email = registerUserRequest.Email, Password = registerUserRequest.Password });
         }
 
-        public async Task<UserLoginSuccess?> Login(LoginRequest loginRequest)
+        public async Task<UserLoginSuccess?> LoginAsync(LoginRequest loginRequest)
         {
-            UserModel? user = await _userManager.GetUserByEmail(loginRequest.Email);
+            UserModel? userModel = await _userManager.GetUserByEmailAsync(loginRequest.Email);
 
-            if (user == null || BCrypt.Verify(loginRequest.Password, user.Password) == false || user.IsActive == false)
+            if (userModel == null || BCrypt.Verify(loginRequest.Password, userModel.Password) == false || userModel.IsActive == false)
             {
                 return null;
             }
@@ -67,8 +62,8 @@ namespace PostIt.Domain.Business
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Name),
-                    new Claim(ClaimTypes.Email, user.Email)
+                    new Claim(ClaimTypes.Name, userModel.Name),
+                    new Claim(ClaimTypes.Email, userModel.Email)
                 }),
                 IssuedAt = DateTime.UtcNow,
                 Issuer = _configuration["JWT:Issuer"],
@@ -80,8 +75,8 @@ namespace PostIt.Domain.Business
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return new UserLoginSuccess
             {
-                Name = user.Name,
-                Email = user.Email,
+                Name = userModel.Name,
+                Email = userModel.Email,
                 Token = tokenHandler.WriteToken(token)
             };
         }

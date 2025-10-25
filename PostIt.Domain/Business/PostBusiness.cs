@@ -18,20 +18,20 @@ namespace PostIt.Domain.Business
             _userManager = userManager;
         }
 
-        public List<PostModel> GetAllPosts(long subjectId)
+        public async Task<List<PostModel>> GetPostsBySubjectIdAsync(long subjectId)
         {
-            return _postManager.GetAllPosts(subjectId);
+            return await _postManager.GetPostsBySubjectIdAsync(subjectId);
         }
 
-        public async Task<PostModel?> GetPostById(long id)
+        public async Task<PostModel?> GetPostByIdAsync(long id)
         {
-            return await _postManager.GetPostById(id) ?? null;
+            return await _postManager.GetPostByIdAsync(id) ?? null;
         }
 
-        public async Task<PostModel?> CreatePost(CreatePostRequest createPostRequest, long subjectId, long userId)
+        public async Task<PostModel?> CreatePostAsync(CreateUpdatePostRequest createPostRequest, long subjectId, long userId)
         {
-            SubjectModel? s = await _subjectManager.GetSubjectById(subjectId);
-            UserModel? u = await _userManager.GetUserById(userId);
+            SubjectModel? s = await _subjectManager.GetSubjectByIdAsync(subjectId);
+            UserModel? u = await _userManager.GetUserByIdAsync(userId);
 
             if (s != null && u != null)
             {
@@ -47,27 +47,27 @@ namespace PostIt.Domain.Business
                     UserId = userId,
                     UserName = u.Name
                 };
-                return await _postManager.CreatePost(postToCreate, subjectId, userId);
+                return await _postManager.CreatePostAsync(postToCreate, subjectId, userId);
             }
             return null;
         }
 
-        public async Task<PostModel?> UpdatePost(CreatePostRequest createPostRequest, long postId)
+        public async Task<PostModel?> UpdatePostAsync(CreateUpdatePostRequest createPostRequest, long postId)
         {
-            PostModel? postToUpdate = await GetPostById(postId);
+            PostModel? postToUpdate = await GetPostByIdAsync(postId);
             if (postToUpdate != null)
             {
                 postToUpdate.Title = createPostRequest.Title;
                 postToUpdate.Text = createPostRequest.Text;
                 postToUpdate.UpdatedAt = DateTime.UtcNow;
-                return await _postManager.UpdatePost(postToUpdate);
+                return await _postManager.UpdatePostAsync(postToUpdate);
             }
             return null;
         }
 
-        public async Task<PostModel?> UnactivatePost(long id)
+        public async Task<PostModel?> UnactivatePostAsync(long id)
         {
-            return await _postManager.UnactivatePost(id) ?? null;
+            return await _postManager.UnactivatePostAsync(id) ?? null;
         }
     }
 }

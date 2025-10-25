@@ -14,36 +14,45 @@ namespace PostIt.Database.Managers
             _postItDbContext = postItDbContext;
         }
 
-        public List<PostModel> GetAllPosts(long subjectId)
+        public async Task<List<PostModel>> GetPostsBySubjectIdAsync(long subjectId)
         {
             List<Post> posts = _postItDbContext.Posts.Where(u => u.SubjectId == subjectId && u.IsActive == true).Include(p => p.Subject).Include(p => p.User).ToList();
 
             List<PostModel> postModels = new List<PostModel>();
 
-            foreach (var post in posts)
+            foreach (Post post in posts)
             {
                 Subject? subjectProperty = _postItDbContext.Subjects.FirstOrDefault(s => s.Id == post.SubjectId);
-                User? userProperty = _postItDbContext.Users.FirstOrDefault(u => u.Id == post.User.Id);
-                if (subjectProperty != null && userProperty != null)
+                User? userProperty = _postItDbContext.Users.FirstOrDefault(u => u.Id == post.User.Id && u.IsActive == true);
+                if (subjectProperty == null || userProperty == null)
                 {
-                    postModels.Add(new PostModel
-                    {
-                        Id = post.Id,
-                        Title = post.Title,
-                        Text = post.Text,
-                        CreatedAt = post.CreatedAt,
-                        UpdatedAt = post.UpdatedAt,
-                        SubjectId = post.SubjectId,
-                        SubjectName = subjectProperty.Name,
-                        UserId = post.UserId,
-                        UserName = userProperty.Name
-                    });
+                    continue;
                 }
+                List<Comment> commentsFromPost = _postItDbContext.Comments.Where(c => c.PostId == post.Id && c.IsActive == true).ToList();
+                List<long> commentsFromPostIds = new List<long>();
+                foreach (Comment comment in commentsFromPost)
+                {
+                    commentsFromPostIds.Add(comment.Id);
+                }
+
+                postModels.Add(new PostModel
+                {
+                    Id = post.Id,
+                    Title = post.Title,
+                    Text = post.Text,
+                    CreatedAt = post.CreatedAt,
+                    UpdatedAt = post.UpdatedAt,
+                    SubjectId = post.SubjectId,
+                    SubjectName = subjectProperty.Name,
+                    UserId = post.UserId,
+                    UserName = userProperty.Name,
+                    CommentIds = commentsFromPostIds,
+                });
             }
-            return postModels;
+            return await Task.FromResult(postModels);
         }
 
-        public async Task<PostModel?> GetPostById(long id)
+        public async Task<PostModel?> GetPostByIdAsync(long id)
         {
             Post? postToGet = await _postItDbContext.Posts.FirstOrDefaultAsync(p => p.Id == id && p.IsActive == true);
 
@@ -59,6 +68,14 @@ namespace PostIt.Database.Managers
             {
                 return null;
             }
+
+            List<Comment> commentsFromPost = await _postItDbContext.Comments.Where(c => c.PostId == postToGet.Id && c.IsActive == true).ToListAsync();
+            List<long> commentsFromPostIds = new List<long>();
+            foreach (Comment comment in commentsFromPost)
+            {
+                commentsFromPostIds.Add(comment.Id);
+            }
+
             return new PostModel
             {
                 Id = postToGet.Id,
@@ -70,11 +87,12 @@ namespace PostIt.Database.Managers
                 SubjectId = subjectProperty.Id,
                 SubjectName = subjectProperty.Name,
                 UserId = userProperty.Id,
-                UserName = userProperty.Name
+                UserName = userProperty.Name,
+                CommentIds = commentsFromPostIds
             };
         }
 
-        public async Task<PostModel?> CreatePost(PostModel postToCreate, long subjectId, long userId)
+        public async Task<PostModel?> CreatePostAsync(PostModel postToCreate, long subjectId, long userId)
         {
             Subject? subjectProperty = await _postItDbContext.Subjects.FirstOrDefaultAsync(s => s.Id == subjectId);
             User? userProperty = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Id == userId && u.IsActive == true);
@@ -115,7 +133,7 @@ namespace PostIt.Database.Managers
 
             return postCreated;
         }
-        public async Task<PostModel?> UpdatePost(PostModel postDataToUpdate)
+        public async Task<PostModel?> UpdatePostAsync(PostModel postDataToUpdate)
         {
             Post? postToUpdate = await _postItDbContext.Posts.FirstOrDefaultAsync(p => p.Id == postDataToUpdate.Id && p.IsActive == true);
 
@@ -131,6 +149,13 @@ namespace PostIt.Database.Managers
             _postItDbContext.Posts.Update(postToUpdate);
             await _postItDbContext.SaveChangesAsync();
 
+            List<Comment> commentsFromPost = await _postItDbContext.Comments.Where(c => c.PostId == postToUpdate.Id && c.IsActive == true).ToListAsync();
+            List<long> commentsFromPostIds = new List<long>();
+            foreach (var comment in commentsFromPost)
+            {
+                commentsFromPostIds.Add(comment.Id);
+            }
+
             PostModel postUpdated = new PostModel
             {
                 Id = postToUpdate.Id,
@@ -142,13 +167,14 @@ namespace PostIt.Database.Managers
                 SubjectId = postDataToUpdate.SubjectId,
                 SubjectName = postDataToUpdate.SubjectName,
                 UserId = postDataToUpdate.UserId,
-                UserName = postDataToUpdate.UserName
+                UserName = postDataToUpdate.UserName,
+                CommentIds = commentsFromPostIds
             };
 
             return postUpdated;
         }
 
-        public async Task<PostModel?> UnactivatePost(long id)
+        public async Task<PostModel?> UnactivatePostAsync(long id)
         {
             Post? postToUnactivate = await _postItDbContext.Posts.FirstOrDefaultAsync(p => p.Id == id && p.IsActive == true);
 
@@ -170,6 +196,13 @@ namespace PostIt.Database.Managers
             _postItDbContext.Posts.Update(postToUnactivate);
             await _postItDbContext.SaveChangesAsync();
 
+            List<Comment> commentsFromPost = _postItDbContext.Comments.Where(c => c.PostId == id && c.IsActive == true).ToList();
+            List<long> commentsFromPostIds = new List<long>();
+            foreach (Comment comment in commentsFromPost)
+            {
+                commentsFromPostIds.Add(comment.Id);
+            }
+
             PostModel postUnactivated = new PostModel
             {
                 Id = postToUnactivate.Id,
@@ -181,7 +214,8 @@ namespace PostIt.Database.Managers
                 SubjectId = postToUnactivate.SubjectId,
                 SubjectName = postToUnactivate.Subject.Name,
                 UserId = postToUnactivate.UserId,
-                UserName = postToUnactivate.User.Name
+                UserName = postToUnactivate.User.Name,
+                CommentIds = commentsFromPostIds
             };
 
             return postUnactivated;

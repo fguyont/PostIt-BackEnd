@@ -1,16 +1,19 @@
-﻿using PostIt.Domain.Models.Requests;
+﻿using PostIt.Domain.Models;
+using PostIt.Domain.Models.Requests;
 using PostIt.Domain.Models.Responses;
 
 namespace PostIt.Domain.Interfaces.IBusiness
 {
     public interface IUserBusiness
     {
-        public Task<GetUserResponse?> GetUserById(long id);
+        public Task<UserModel?> GetUserByIdAsync(long id);
 
-        public Task<GetUserResponse?> GetUserByEmail(string email);
+        public Task<UserModel?> GetUserByEmailAsync(string email);
 
-        public Task<GetUserResponse?> UpdateConnectedUser(RegisterRequest registerRequest, long id);
+        public Task<UserModel?> UpdateConnectedUserAsync(RegisterUpdateUserRequest updateUserRequest, long id);
 
-        public Task<GetUserResponse?> UnactivateConnectedUser(long id);
+        public Task<UserModel?> UnactivateConnectedUserAsync(long id);
+
+        public Task<bool> DoesUserExistAsync(RegisterUpdateUserRequest registerUpdateUserRequest);
     }
 }

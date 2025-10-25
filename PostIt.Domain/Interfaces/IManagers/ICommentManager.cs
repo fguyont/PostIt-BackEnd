@@ -4,14 +4,14 @@ namespace PostIt.Domain.Interfaces.IManagers
 {
     public interface ICommentManager
     {
-        public List<CommentModel> GetAllComments(long postId);
+        public Task<List<CommentModel>> GetAllCommentsAsync(long postId);
 
-        public Task<CommentModel?> GetCommentById(long id);
+        public Task<CommentModel?> GetCommentByIdAsync(long id);
 
-        public Task<CommentModel?> CreateComment(CommentModel commentToCreate, long postId, long userId);
+        public Task<CommentModel?> CreateCommentAsync(CommentModel commentToCreate, long postId, long userId);
 
-        public Task<CommentModel?> UpdateComment(CommentModel commentToUpdate);
+        public Task<CommentModel?> UpdateCommentAsync(CommentModel commentToUpdate);
 
-        public Task<CommentModel?> UnactivateComment(long id);
+        public Task<CommentModel?> UnactivateCommentAsync(long id);
     }
 }

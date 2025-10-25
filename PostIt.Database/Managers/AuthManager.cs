@@ -13,7 +13,7 @@ namespace PostIt.Database.Managers
             _postItDbContext = postItDbContext;
         }
 
-        public async Task<UserModel> Register(UserModel userToRegister)
+        public async Task<UserModel?> RegisterAsync(UserModel userToRegister)
         {
             var user = new User
             {
@@ -22,7 +22,7 @@ namespace PostIt.Database.Managers
                 Password = userToRegister.Password,
                 CreatedAt = userToRegister.CreatedAt,
                 UpdatedAt = userToRegister.UpdatedAt,
-                IsActive = true
+                IsActive = userToRegister.IsActive
             };
             _postItDbContext.Users.Add(user);
             await _postItDbContext.SaveChangesAsync();

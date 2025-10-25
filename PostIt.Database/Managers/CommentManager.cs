@@ -14,7 +14,7 @@ namespace PostIt.Database.Managers
             _postItDbContext = postItDbContext;
         }
 
-        public List<CommentModel> GetAllComments(long postId)
+        public async Task<List<CommentModel>> GetAllCommentsAsync(long postId)
         {
             List<Comment> comments = _postItDbContext.Comments.Where(c => c.PostId == postId && c.IsActive == true).Include(c => c.Post).Include(c => c.User).ToList();
             List<CommentModel> commentModels = new List<CommentModel>();
@@ -34,10 +34,10 @@ namespace PostIt.Database.Managers
                     UserName = comment.User.Name
                 });
             }
-            return commentModels;
+            return await Task.FromResult(commentModels);
         }
 
-        public async Task<CommentModel?> GetCommentById(long id)
+        public async Task<CommentModel?> GetCommentByIdAsync(long id)
         {
             Comment? commentToGet = await _postItDbContext.Comments.FirstOrDefaultAsync(c => c.Id == id && c.IsActive == true);
 
@@ -68,7 +68,7 @@ namespace PostIt.Database.Managers
             };
         }
 
-        public async Task<CommentModel?> CreateComment(CommentModel commentToCreate, long postId, long userId)
+        public async Task<CommentModel?> CreateCommentAsync(CommentModel commentToCreate, long postId, long userId)
         {
             Post? postProperty = await _postItDbContext.Posts.FirstOrDefaultAsync(p => p.Id == postId && p.IsActive == true);
             User? userProperty = await _postItDbContext.Users.FirstOrDefaultAsync(u => u.Id == userId && u.IsActive == true);
@@ -108,7 +108,7 @@ namespace PostIt.Database.Managers
             return commentCreated;
         }
 
-        public async Task<CommentModel?> UpdateComment(CommentModel commentDataToUpdate)
+        public async Task<CommentModel?> UpdateCommentAsync(CommentModel commentDataToUpdate)
         {
             Comment? commentToUpdate = await _postItDbContext.Comments.FirstOrDefaultAsync(c => c.Id == commentDataToUpdate.Id && c.IsActive == true);
 
@@ -139,7 +139,7 @@ namespace PostIt.Database.Managers
             return commentUpdated;
         }
 
-        public async Task<CommentModel?> UnactivateComment(long id)
+        public async Task<CommentModel?> UnactivateCommentAsync(long id)
         {
             Comment? commentToUnactivate = await _postItDbContext.Comments.FirstOrDefaultAsync(c => c.Id == id && c.IsActive == true);
 

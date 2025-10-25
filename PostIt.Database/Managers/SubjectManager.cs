@@ -14,20 +14,43 @@ namespace PostIt.Database.Managers
             _postItDbContext = postItDbContext;
         }
 
-        public List<SubjectModel> GetAllSubjects()
+        public async Task<List<SubjectModel>> GetAllSubjectsAsync()
         {
-            List<Subject> subjects = _postItDbContext.Subjects.ToList();
+            List<Subject> subjects = await _postItDbContext.Subjects.ToListAsync();
 
             List<SubjectModel> subjectModels = new List<SubjectModel>();
 
             foreach (var subject in subjects)
             {
-                subjectModels.Add(new SubjectModel { Id = subject.Id, Name = subject.Name, Description = subject.Description });
+                List<Post> postsFromSubject = _postItDbContext.Posts.Where(p => p.Id == subject.Id && p.IsActive == true).ToList();
+                List<long> postsFromSubjectIds = new List<long>();
+
+                foreach (Post post in postsFromSubject)
+                {
+                    postsFromSubjectIds.Add(post.Id);
+                }
+
+                List<User> usersFromSubject = subject.Users.ToList();
+                List<long> usersFromSubjectIds = new List<long>();
+
+                foreach (User user in usersFromSubject)
+                {
+                    usersFromSubjectIds.Add(user.Id);
+                }
+
+                subjectModels.Add(new SubjectModel
+                {
+                    Id = subject.Id,
+                    Name = subject.Name,
+                    Description = subject.Description,
+                    PostIds = postsFromSubjectIds,
+                    UserIds = usersFromSubjectIds
+                });
             }
             return subjectModels;
         }
 
-        public async Task<SubjectModel?> GetSubjectById(long id)
+        public async Task<SubjectModel?> GetSubjectByIdAsync(long id)
         {
             Subject? subjectToGet = await _postItDbContext.Subjects.FirstOrDefaultAsync(s => s.Id == id);
 
@@ -35,10 +58,34 @@ namespace PostIt.Database.Managers
             {
                 return null;
             }
-            return new SubjectModel { Id = subjectToGet.Id, Name = subjectToGet.Name, Description = subjectToGet.Description };
+
+            List<Post> postsFromSubject = _postItDbContext.Posts.Where(p => p.SubjectId == id && p.IsActive == true).ToList();
+            List<long> postsFromSubjectIds = new List<long>();
+
+            foreach (Post post in postsFromSubject)
+            {
+                postsFromSubjectIds.Add(post.Id);
+            }
+
+            List<User> usersFromSubject = subjectToGet.Users.ToList();
+            List<long> usersFromSubjectIds = new List<long>();
+
+            foreach (User user in usersFromSubject)
+            {
+                usersFromSubjectIds.Add(user.Id);
+            }
+
+            return new SubjectModel
+            {
+                Id = subjectToGet.Id,
+                Name = subjectToGet.Name,
+                Description = subjectToGet.Description,
+                PostIds = postsFromSubjectIds,
+                UserIds = usersFromSubjectIds
+            };
         }
 
-        public async Task<SubjectModel> CreateSubject(SubjectModel subjectToCreate)
+        public async Task<SubjectModel?> CreateSubjectAsync(SubjectModel subjectToCreate)
         {
             Subject subject = new Subject
             {
@@ -58,7 +105,7 @@ namespace PostIt.Database.Managers
             return subjectAdded;
         }
 
-        public async Task<bool> Subscribe(long subjectId, long UserId)
+        public async Task<bool> SubscribeAsync(long subjectId, long UserId)
         {
             Subject? subjectToSub = await _postItDbContext.Subjects.Include(s => s.Users).FirstOrDefaultAsync(s => s.Id == subjectId);
             User? userToSub = await _postItDbContext.Users.Include(u => u.Subjects).FirstOrDefaultAsync(u => u.Id == UserId);
@@ -79,7 +126,7 @@ namespace PostIt.Database.Managers
             return true;
         }
 
-        public async Task<bool> Unsubscribe(long subjectId, long UserId)
+        public async Task<bool> UnsubscribeAsync(long subjectId, long UserId)
         {
             Subject? subjectToUnsub = await _postItDbContext.Subjects.Include(s => s.Users).FirstOrDefaultAsync(s => s.Id == subjectId);
             User? userToUnSub = await _postItDbContext.Users.Include(u => u.Subjects).FirstOrDefaultAsync(u => u.Id == UserId);
