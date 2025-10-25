@@ -30,16 +30,16 @@ namespace PostIt.API.Controllers
         [Authorize]
         [HttpGet]
         [Route("Subject/{subjectId}/Post/{postId}/[Controller]/All")]
-        public async Task<IActionResult> GetAllComments(long subjectId, long postId)
+        public async Task<IActionResult> GetAllCommentsAsync(long subjectId, long postId)
         {
-            SubjectModel? subject = await _subjectBusiness.GetSubjectById(subjectId);
+            SubjectModel? subject = await _subjectBusiness.GetSubjectByIdAsync(subjectId);
 
             if (subject == null)
             {
                 return BadRequest(new { message = "Subject not found." });
             }
 
-            PostModel? post = await _postBusiness.GetPostById(postId);
+            PostModel? post = await _postBusiness.GetPostByIdAsync(postId);
 
             if (post == null)
             {
@@ -47,7 +47,7 @@ namespace PostIt.API.Controllers
             }
 
             List<CommentModel> comments = new List<CommentModel>();
-            comments = _commentBusiness.GetAllComments(postId);
+            comments = await _commentBusiness.GetAllCommentsAsync(postId);
 
             return Ok(comments);
         }
@@ -55,23 +55,23 @@ namespace PostIt.API.Controllers
         [Authorize]
         [HttpGet]
         [Route("Subject/{subjectId}/Post/{postId}/[Controller]/{commentId}")]
-        public async Task<ActionResult> GetCommentById(long commentId, long subjectId, long postId)
+        public async Task<ActionResult> GetCommentByIdAsync(long commentId, long subjectId, long postId)
         {
-            SubjectModel? subject = await _subjectBusiness.GetSubjectById(subjectId);
+            SubjectModel? subject = await _subjectBusiness.GetSubjectByIdAsync(subjectId);
 
             if (subject == null)
             {
                 return BadRequest(new { message = "Subject not found." });
             }
 
-            PostModel? post = await _postBusiness.GetPostById(postId);
+            PostModel? post = await _postBusiness.GetPostByIdAsync(postId);
 
             if (post == null)
             {
                 return BadRequest(new { message = "Post not found." });
             }
 
-            CommentModel? commentModel = await _commentBusiness.GetCommentById(commentId);
+            CommentModel? commentModel = await _commentBusiness.GetCommentByIdAsync(commentId);
 
             if (commentModel != null)
             {
@@ -83,155 +83,121 @@ namespace PostIt.API.Controllers
         [Authorize]
         [HttpPost]
         [Route("Subject/{subjectId}/Post/{postId}/[Controller]/New")]
-        public async Task<IActionResult> CreateComment([FromBody] CreateCommentRequest createCommentRequest, long subjectId, long postId)
+        public async Task<IActionResult> CreateCommentAsync([FromBody] CreateUpdateCommentRequest createCommentRequest, long subjectId, long postId)
         {
-            SubjectModel? subject = await _subjectBusiness.GetSubjectById(subjectId);
-
+            SubjectModel? subject = await _subjectBusiness.GetSubjectByIdAsync(subjectId);
             if (subject == null)
             {
                 return BadRequest(new { message = "Subject not found." });
             }
 
-            PostModel? post = await _postBusiness.GetPostById(postId);
-
+            PostModel? post = await _postBusiness.GetPostByIdAsync(postId);
             if (post == null)
             {
                 return BadRequest(new { message = "Post not found." });
             }
 
             string? userEmail = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
-
             if (userEmail == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            GetUserResponse? getUserResponse = await _userBusiness.GetUserByEmail(userEmail);
-
-            if (getUserResponse == null)
+            UserModel? userModel = await _userBusiness.GetUserByEmailAsync(userEmail);
+            if (userModel == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            CommentModel? commentCreated = await _commentBusiness.CreateComment(createCommentRequest, postId, getUserResponse.Id);
-
-            if (commentCreated != null)
-            {
-                return Ok(commentCreated);
-            }
-
-            return BadRequest(new { message = "Comment creation failed." });
+            CommentModel? commentCreated = await _commentBusiness.CreateCommentAsync(createCommentRequest, postId, userModel.Id);
+            return (commentCreated != null) ? Ok(commentCreated) : BadRequest(new { message = "Comment creation failed." });
         }
 
         [Authorize]
         [HttpPut]
         [Route("Subject/{subjectId}/Post/{postId}/[Controller]/{commentId}/Edit")]
-        public async Task<IActionResult> UpdateComment([FromBody] CreateCommentRequest createCommentRequest, long commentId, long subjectId, long postId)
+        public async Task<IActionResult> UpdateCommentAsync([FromBody] CreateUpdateCommentRequest createCommentRequest, long commentId, long subjectId, long postId)
         {
-            SubjectModel? subject = await _subjectBusiness.GetSubjectById(subjectId);
-
+            SubjectModel? subject = await _subjectBusiness.GetSubjectByIdAsync(subjectId);
             if (subject == null)
             {
                 return BadRequest(new { message = "Subject not found." });
             }
 
-            PostModel? postToUpdate = await _postBusiness.GetPostById(postId);
-
+            PostModel? postToUpdate = await _postBusiness.GetPostByIdAsync(postId);
             if (postToUpdate == null)
             {
                 return BadRequest(new { message = "Post not found." });
             }
 
-            CommentModel? commentToUpdate = await _commentBusiness.GetCommentById(commentId);
-
+            CommentModel? commentToUpdate = await _commentBusiness.GetCommentByIdAsync(commentId);
             if (commentToUpdate == null)
             {
                 return BadRequest(new { message = "Comment not found." });
             }
 
             string? userEmail = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
-
             if (userEmail == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            GetUserResponse? getUserResponse = await _userBusiness.GetUserByEmail(userEmail);
-
-            if (getUserResponse == null)
+            UserModel? userModel = await _userBusiness.GetUserByEmailAsync(userEmail);
+            if (userModel == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
-
-            if (commentToUpdate.UserId != getUserResponse.Id)
+            if (commentToUpdate.UserId != userModel.Id)
             {
                 return BadRequest(new { message = "User not allowed to update this comment." });
             }
 
-            CommentModel? commentUpdated = await _commentBusiness.UpdateComment(createCommentRequest, commentId);
-
-            if (commentUpdated != null)
-            {
-                return Ok(commentUpdated);
-            }
-
-            return BadRequest(new { message = "Comment update failed." });
+            CommentModel? commentUpdated = await _commentBusiness.UpdateCommentAsync(createCommentRequest, commentId);
+            return (commentUpdated != null) ? Ok(commentUpdated) : BadRequest(new { message = "Comment update failed." });
         }
 
 
         [Authorize]
         [HttpPut]
         [Route("Subject/{subjectId}/Post/{postId}/[Controller]/{commentId}/Remove")]
-        public async Task<IActionResult> UnactivateComment(long commentId, long subjectId, long postId)
+        public async Task<IActionResult> UnactivateCommentAsync(long commentId, long subjectId, long postId)
         {
-            SubjectModel? subject = await _subjectBusiness.GetSubjectById(subjectId);
-
+            SubjectModel? subject = await _subjectBusiness.GetSubjectByIdAsync(subjectId);
             if (subject == null)
             {
                 return BadRequest(new { message = "Subject not found." });
             }
 
-            PostModel? post = await _postBusiness.GetPostById(postId);
-
+            PostModel? post = await _postBusiness.GetPostByIdAsync(postId);
             if (post == null)
             {
                 return BadRequest(new { message = "Post not found." });
             }
 
-            CommentModel? commentToUnactivate = await _commentBusiness.GetCommentById(commentId);
-
+            CommentModel? commentToUnactivate = await _commentBusiness.GetCommentByIdAsync(commentId);
             if (commentToUnactivate == null)
             {
                 return BadRequest(new { message = "Comment not found." });
             }
 
             string? userEmail = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
-
             if (userEmail == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            GetUserResponse? getUserResponse = await _userBusiness.GetUserByEmail(userEmail);
-
-            if (getUserResponse == null)
+            UserModel? userModel = await _userBusiness.GetUserByEmailAsync(userEmail);
+            if (userModel == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
-
-            if (commentToUnactivate.UserId != getUserResponse.Id)
+            if (commentToUnactivate.UserId != userModel.Id)
             {
                 return BadRequest(new { message = "User not allowed to unactivate this comment." });
             }
 
-            CommentModel? commentUnactivated = await _commentBusiness.UnactivateComment(commentId);
-
-            if (commentUnactivated != null)
-            {
-                return Ok(commentUnactivated);
-            }
-
-            return BadRequest(new { message = "Comment unactivation failed." });
+            CommentModel? commentUnactivated = await _commentBusiness.UnactivateCommentAsync(commentId);
+            return (commentUnactivated != null) ? Ok(commentUnactivated) : BadRequest(new { message = "Comment unactivation failed." });
         }
     }
 }

@@ -29,9 +29,9 @@ namespace PostIt.API.Controllers
         [Authorize]
         [HttpGet]
         [Route("Subject/{subjectId}/[controller]/All")]
-        public async Task<IActionResult> GetAllPosts(long subjectId)
+        public async Task<IActionResult> GetPostsBySubjectIdAsync(long subjectId)
         {
-            SubjectModel? subject = await _subjectBusiness.GetSubjectById(subjectId);
+            SubjectModel? subject = await _subjectBusiness.GetSubjectByIdAsync(subjectId);
 
             if (subject == null)
             {
@@ -39,7 +39,7 @@ namespace PostIt.API.Controllers
             }
 
             List<PostModel> posts = new List<PostModel>();
-            posts = _postBusiness.GetAllPosts(subjectId);
+            posts = await _postBusiness.GetPostsBySubjectIdAsync(subjectId);
 
             return Ok(posts);
         }
@@ -47,16 +47,16 @@ namespace PostIt.API.Controllers
         [Authorize]
         [HttpGet]
         [Route("Subject/{subjectId}/[controller]/{postId}")]
-        public async Task<ActionResult> GetPostById(long postId, long subjectId)
+        public async Task<ActionResult> GetPostByIdAsync(long postId, long subjectId)
         {
-            SubjectModel? subject = await _subjectBusiness.GetSubjectById(subjectId);
+            SubjectModel? subject = await _subjectBusiness.GetSubjectByIdAsync(subjectId);
 
             if (subject == null)
             {
                 return BadRequest(new { message = "Subject not found." });
             }
 
-            PostModel? postModel = await _postBusiness.GetPostById(postId);
+            PostModel? postModel = await _postBusiness.GetPostByIdAsync(postId);
 
             if (postModel != null)
             {
@@ -68,133 +68,102 @@ namespace PostIt.API.Controllers
         [Authorize]
         [HttpPost]
         [Route("Subject/{subjectId}/[controller]/New")]
-        public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest createPostRequest, long subjectId)
+        public async Task<IActionResult> CreatePostAsync([FromBody] CreateUpdatePostRequest createPostRequest, long subjectId)
         {
-            SubjectModel? subject = await _subjectBusiness.GetSubjectById(subjectId);
-
+            SubjectModel? subject = await _subjectBusiness.GetSubjectByIdAsync(subjectId);
             if (subject == null)
             {
                 return BadRequest(new { message = "Subject not found." });
             }
 
             string? userEmail = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
-
             if (userEmail == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            GetUserResponse? getUserResponse = await _userBusiness.GetUserByEmail(userEmail);
-
-            if (getUserResponse == null)
+            UserModel? userModel = await _userBusiness.GetUserByEmailAsync(userEmail);
+            if (userModel == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            PostModel? postCreated = await _postBusiness.CreatePost(createPostRequest, subjectId, getUserResponse.Id);
-
-            if (postCreated != null)
-            {
-                return Ok(postCreated);
-            }
-
-            return BadRequest(new { message = "Post creation failed." });
+            PostModel? postCreated = await _postBusiness.CreatePostAsync(createPostRequest, subjectId, userModel.Id);
+            return (postCreated != null) ? Ok(postCreated) : BadRequest(new { message = "Post creation failed." });
         }
 
         [Authorize]
         [HttpPut]
         [Route("Subject/{subjectId}/[controller]/{postId}/Edit")]
-        public async Task<IActionResult> UpdatePost([FromBody] CreatePostRequest createPostRequest, long postId, long subjectId)
+        public async Task<IActionResult> UpdatePostAsync([FromBody] CreateUpdatePostRequest createPostRequest, long postId, long subjectId)
         {
-            SubjectModel? subject = await _subjectBusiness.GetSubjectById(subjectId);
-
+            SubjectModel? subject = await _subjectBusiness.GetSubjectByIdAsync(subjectId);
             if (subject == null)
             {
                 return BadRequest(new { message = "Subject not found." });
             }
 
-            PostModel? postToUpdate = await _postBusiness.GetPostById(postId);
-
+            PostModel? postToUpdate = await _postBusiness.GetPostByIdAsync(postId);
             if (postToUpdate == null)
             {
                 return BadRequest(new { message = "Post not found." });
             }
 
             string? userEmail = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
-
             if (userEmail == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            GetUserResponse? getUserResponse = await _userBusiness.GetUserByEmail(userEmail);
-
-            if (getUserResponse == null)
+            UserModel? userModel = await _userBusiness.GetUserByEmailAsync(userEmail);
+            if (userModel == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
-
-            if (postToUpdate.UserId != getUserResponse.Id)
+            if (postToUpdate.UserId != userModel.Id)
             {
                 return BadRequest(new { message = "User not allowed to update this post." });
             }
 
-            PostModel? postUpdated = await _postBusiness.UpdatePost(createPostRequest, postId);
-
-            if (postUpdated != null)
-            {
-                return Ok(postUpdated);
-            }
-
-            return BadRequest(new { message = "Post update failed." });
+            PostModel? postUpdated = await _postBusiness.UpdatePostAsync(createPostRequest, postId);
+            return (postUpdated != null) ? Ok(postUpdated) : BadRequest(new { message = "Post update failed." });
         }
 
         [Authorize]
         [HttpPut]
         [Route("Subject/{subjectId}/[controller]/{postId}/Remove")]
-        public async Task<IActionResult> UnactivatePost(long postId, long subjectId)
+        public async Task<IActionResult> UnactivatePostAsync(long postId, long subjectId)
         {
-            SubjectModel? subject = await _subjectBusiness.GetSubjectById(subjectId);
-
+            SubjectModel? subject = await _subjectBusiness.GetSubjectByIdAsync(subjectId);
             if (subject == null)
             {
                 return BadRequest(new { message = "Subject not found." });
             }
 
-            PostModel? postToUnactivate = await _postBusiness.GetPostById(postId);
-
+            PostModel? postToUnactivate = await _postBusiness.GetPostByIdAsync(postId);
             if (postToUnactivate == null)
             {
                 return BadRequest(new { message = "Post not found." });
             }
 
             string? userEmail = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
-
             if (userEmail == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            GetUserResponse? getUserResponse = await _userBusiness.GetUserByEmail(userEmail);
-
-            if (getUserResponse == null)
+            UserModel? userModel = await _userBusiness.GetUserByEmailAsync(userEmail);
+            if (userModel == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
-
-            if (postToUnactivate.UserId != getUserResponse.Id)
+            if (postToUnactivate.UserId != userModel.Id)
             {
                 return BadRequest(new { message = "User not allowed to unactivate this post." });
             }
 
-            PostModel? postUnactivated = await _postBusiness.UnactivatePost(postId);
-
-            if (postUnactivated != null)
-            {
-                return Ok(postUnactivated);
-            }
-
-            return BadRequest(new { message = "Post unactivation failed." });
+            PostModel? postUnactivated = await _postBusiness.UnactivatePostAsync(postId);
+            return (postUnactivated != null) ? Ok(postUnactivated) : BadRequest(new { message = "Post unactivation failed." });
         }
     }
 }

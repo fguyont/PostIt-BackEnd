@@ -25,10 +25,10 @@ namespace PostIt.API.Controllers
         [Authorize]
         [HttpGet]
         [Route("[controller]/All")]
-            public IActionResult GetAllSubjects()
+        public async Task<IActionResult> GetAllSubjectsAsync()
         {
             List<SubjectModel> subjects = new List<SubjectModel>();
-            subjects = _subjectBusiness.GetAllSubjects();
+            subjects = await _subjectBusiness.GetAllSubjectsAsync();
 
             return Ok(subjects);
         }
@@ -36,9 +36,9 @@ namespace PostIt.API.Controllers
         [Authorize]
         [HttpGet]
         [Route("[controller]/{id}")]
-        public async Task<ActionResult> GetPostById(long id)
+        public async Task<ActionResult> GetPostByIdAsync(long id)
         {
-            SubjectModel? subject = await _subjectBusiness.GetSubjectById(id);
+            SubjectModel? subject = await _subjectBusiness.GetSubjectByIdAsync(id);
 
             if (subject != null)
             {
@@ -51,87 +51,69 @@ namespace PostIt.API.Controllers
         [Authorize]
         [HttpPost]
         [Route("[controller]/New")]
-        public async Task<IActionResult> CreateSubject([FromBody] CreateSubjectRequest createSubjectRequest)
+        public async Task<IActionResult> CreateSubjectAsync([FromBody] CreateSubjectRequest createSubjectRequest)
         {
-            SubjectModel subjectCreated = await _subjectBusiness.CreateSubject(createSubjectRequest);
+            SubjectModel? subjectCreated = await _subjectBusiness.CreateSubjectAsync(createSubjectRequest);
 
             if (subjectCreated != null)
             {
                 return Ok(subjectCreated);
             }
-            return BadRequest(new { message = "Subject creation failed."});
+            return BadRequest(new { message = "Subject creation failed." });
         }
 
         [Authorize]
         [HttpPost]
         [Route("[controller]/{subjectId}/Subscribe")]
-        public async Task<IActionResult> Subscribe(long subjectId)
+        public async Task<IActionResult> SubscribeAsync(long subjectId)
         {
-            SubjectModel? subject = await _subjectBusiness.GetSubjectById(subjectId);
-
+            SubjectModel? subject = await _subjectBusiness.GetSubjectByIdAsync(subjectId);
             if (subject == null)
             {
                 return BadRequest(new { message = "Subject not found." });
             }
 
             string? userEmail = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
-
             if (userEmail == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            GetUserResponse? getUserResponse = await _userBusiness.GetUserByEmail(userEmail);
-
-            if (getUserResponse == null)
+            UserModel? userModel = await _userBusiness.GetUserByEmailAsync(userEmail);
+            if (userModel == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            UserSubjectSuccess subSuccess = await _subjectBusiness.Subscribe(subjectId, getUserResponse.Id);
-
-            if (subSuccess != null)
-            {
-                return Ok(subSuccess);
-            }
-
-            return BadRequest(new { message = "Subscription failed." });
+            SubUnsubSuccess? subSuccess = await _subjectBusiness.SubscribeAsync(subjectId, userModel.Id);
+            return (subSuccess != null) ? Ok(subSuccess) : BadRequest(new { message = "Subscription failed." });
         }
 
         [Authorize]
         [HttpPost]
         [Route("[controller]/{subjectId}/Unsubscribe")]
-        public async Task<IActionResult> Unsubscribe(long subjectId)
+        public async Task<IActionResult> UnsubscribeAsync(long subjectId)
         {
-            SubjectModel? subject = await _subjectBusiness.GetSubjectById(subjectId);
-
+            SubjectModel? subject = await _subjectBusiness.GetSubjectByIdAsync(subjectId);
             if (subject == null)
             {
                 return BadRequest(new { message = "Subject not found." });
             }
 
             string? userEmail = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
-
             if (userEmail == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            GetUserResponse? getUserResponse = await _userBusiness.GetUserByEmail(userEmail);
-
-            if (getUserResponse == null)
+            UserModel? userModel = await _userBusiness.GetUserByEmailAsync(userEmail);
+            if (userModel == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            UserSubjectSuccess unsubSuccess = await _subjectBusiness.Unsubscribe(subjectId, getUserResponse.Id);
-
-            if (unsubSuccess != null)
-            {
-                return Ok(unsubSuccess);
-            }
-
-            return BadRequest(new { message = "Unsubscription failed." });
+            SubUnsubSuccess? unsubSuccess = await _subjectBusiness.UnsubscribeAsync(subjectId, userModel.Id);
+            return (unsubSuccess != null) ? Ok(unsubSuccess) : BadRequest(new { message = "Unsubscription failed." });
         }
     }
 }

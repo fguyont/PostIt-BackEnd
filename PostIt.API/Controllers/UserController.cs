@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PostIt.Domain.Interfaces.IBusiness;
+using PostIt.Domain.Models;
 using PostIt.Domain.Models.Requests;
 using PostIt.Domain.Models.Responses;
 using System.Security.Claims;
@@ -22,94 +23,72 @@ namespace PostIt.API.Controllers
         [Authorize]
         [HttpGet]
         [Route("[controller]/{id}")]
-        public async Task<ActionResult> GetUserById(long id)
+        public async Task<ActionResult> GetUserByIdAsync(long id)
         {
-            GetUserResponse? getUserResponse = await _userBusiness.GetUserById(id);
-
-            if (getUserResponse != null)
-            {
-                return Ok(getUserResponse);
-            }
-            return BadRequest(new { message = "User not found." });
+            UserModel? userModel = await _userBusiness.GetUserByIdAsync(id);
+            return (userModel != null) ? Ok(userModel) : BadRequest(new { message = "User not found." });
         }
 
         [Authorize]
         [HttpGet]
         [Route("[controller]/Me")]
-        public async Task<ActionResult> GetConnectedUser()
+        public async Task<ActionResult> GetConnectedUserAsync()
         {
             string? userEmail = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
-
             if (userEmail == null)
             {
-                return BadRequest(new { message = "Connected user not found." });
+                return BadRequest(new { message = "Connected user email not found." });
             }
-
-            GetUserResponse? getUserResponse = await _userBusiness.GetUserByEmail(userEmail);
-            
-            if (getUserResponse != null)
-            {
-                return Ok(getUserResponse);
-            }
-            return BadRequest(new { message = "Connected user not found." });
+            UserModel? userModel = await _userBusiness.GetUserByEmailAsync(userEmail);
+            return (userModel != null) ? Ok(userModel) : BadRequest(new { message = "Connected user not found." });
         }
 
         [Authorize]
         [HttpPut]
         [Route("[controller]/Me/Edit")]
-        public async Task<ActionResult> UpdateConnectedUser(RegisterRequest registerRequest)
+        public async Task<ActionResult> UpdateConnectedUserAsync(RegisterUpdateUserRequest updateUserRequest)
         {
             string? userEmail = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
-
             if (userEmail == null)
             {
-                return BadRequest(new { message = "Connected user not found." });
+                return BadRequest(new { message = "Connected user email not found." });
             }
 
-            GetUserResponse? getUserResponse = await _userBusiness.GetUserByEmail(userEmail);
+            UserModel? userModel = await _userBusiness.GetUserByEmailAsync(userEmail);
 
-            if (getUserResponse == null)
+            if (userModel == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            GetUserResponse? userUpdated = await _userBusiness.UpdateConnectedUser(registerRequest, getUserResponse.Id);
-
-            if (userUpdated != null)
+            if (await _userBusiness.DoesUserExistAsync(updateUserRequest) == true)
             {
-                return Ok(userUpdated);
+                return BadRequest(new { message = "User name and/or email is already taken." });
             }
 
-            return BadRequest(new { message = "Connected user update failed." });
+            UserModel? userUpdated = await _userBusiness.UpdateConnectedUserAsync(updateUserRequest, userModel.Id);
+            return (userUpdated != null) ? Ok(userUpdated) : BadRequest(new { message = "Connected user update failed." });
         }
 
         [Authorize]
         [HttpPut]
         [Route("[controller]/Me/Remove")]
-        public async Task<ActionResult> UnactivateConnectedUser()
+        public async Task<ActionResult> UnactivateConnectedUserAsync()
         {
             string? userEmail = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
-
             if (userEmail == null)
             {
-                return BadRequest(new { message = "Connected user not found." });
+                return BadRequest(new { message = "Connected user email not found." });
             }
 
-            GetUserResponse? getUserResponse = await _userBusiness.GetUserByEmail(userEmail);
-
-            if (getUserResponse == null)
+            UserModel? userModel = await _userBusiness.GetUserByEmailAsync(userEmail);
+            if (userModel == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
             }
 
-            GetUserResponse? userUnactivated = await _userBusiness.UnactivateConnectedUser(getUserResponse.Id);
-
-            if (userUnactivated != null)
-            {
-                return Ok(userUnactivated);
-            }
-
-            return BadRequest(new { message = "Connected user unactivation failed." });
+            UserModel? userUnactivated = await _userBusiness.UnactivateConnectedUserAsync(userModel.Id);
+            return (userUnactivated != null) ? Ok(userUnactivated) : BadRequest(new { message = "Connected user unactivation failed." });
         }
     }
 }
