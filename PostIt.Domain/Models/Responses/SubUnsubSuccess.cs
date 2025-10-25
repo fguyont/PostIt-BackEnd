@@ -2,7 +2,7 @@
 
 namespace PostIt.Domain.Models.Responses
 {
-    public class UserSubjectSuccess
+    public class SubUnsubSuccess
     {
         [Required]
         public long UserId { get; set; }

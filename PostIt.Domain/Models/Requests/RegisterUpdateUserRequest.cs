@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PostIt.Domain.Models.Responses
+namespace PostIt.Domain.Models.Requests
 {
-    public class GetUserResponse
+    public class RegisterUpdateUserRequest
     {
-        public long Id { get; set; }
-
         [Required]
         [MaxLength(50)]
         public required string Name { get; set; }
@@ -14,8 +12,8 @@ namespace PostIt.Domain.Models.Responses
         [MaxLength(50)]
         public required string Email { get; set; }
 
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime UpdatedAt { get; set; }
+        [Required]
+        [MaxLength(255)]
+        public required string Password { get; set; }
     }
 }

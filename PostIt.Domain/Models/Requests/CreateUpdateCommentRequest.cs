@@ -2,7 +2,7 @@
 
 namespace PostIt.Domain.Models.Requests
 {
-    public class CreateCommentRequest
+    public class CreateUpdateCommentRequest
     {
         [Required]
         [MaxLength(2000)]
