@@ -27,5 +27,7 @@ namespace PostIt.Domain.Models
         public long UserId { get; set; }
 
         public required string UserName { get; set; }
+
+        public List<long> CommentIds { get; set; } = new List<long>();
     }
 }

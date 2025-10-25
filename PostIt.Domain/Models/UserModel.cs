@@ -23,5 +23,11 @@ namespace PostIt.Domain.Models
         public DateTime UpdatedAt { get; set; }
 
         public bool IsActive { get; set; }
+
+        public List<long> SubjectIds { get; set; } = new List<long>();
+
+        public List<long> PostIds { get; set; } = new List<long>();
+
+        public List<long> CommentIds { get; set; } = new List<long>();
     }
 }
