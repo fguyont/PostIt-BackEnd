@@ -85,6 +85,11 @@ namespace PostIt.API.Controllers
                 return BadRequest(new { message = "Connected user not found." });
             }
 
+            if (await _subjectBusiness.IsItOkToSubscribe(subjectId, userModel.Id) == false)
+            {
+                return BadRequest(new { message = "User is already subscribed. Subscription failed." });
+            }
+
             SubUnsubSuccess? subSuccess = await _subjectBusiness.SubscribeAsync(subjectId, userModel.Id);
             return (subSuccess != null) ? Ok(subSuccess) : BadRequest(new { message = "Subscription failed." });
         }
@@ -110,6 +115,11 @@ namespace PostIt.API.Controllers
             if (userModel == null)
             {
                 return BadRequest(new { message = "Connected user not found." });
+            }
+
+            if (await _subjectBusiness.IsItOkToUnsubscribe(subjectId, userModel.Id) == false)
+            {
+                return BadRequest(new { message = "User is not subscribed. Unsubscription failed." });
             }
 
             SubUnsubSuccess? unsubSuccess = await _subjectBusiness.UnsubscribeAsync(subjectId, userModel.Id);

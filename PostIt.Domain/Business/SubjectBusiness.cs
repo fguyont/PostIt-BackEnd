@@ -38,36 +38,63 @@ namespace PostIt.Domain.Business
 
         public async Task<SubUnsubSuccess?> SubscribeAsync(long subjectId, long userId)
         {
-            if (await _subjectManager.SubscribeAsync(subjectId, userId) == true)
+            if (await _subjectManager.SubscribeAsync(subjectId, userId) == false)
             {
-                UserModel? userModel = await _userManager.GetUserByIdAsync(userId);
-                SubjectModel? subjectModel = await _subjectManager.GetSubjectByIdAsync(subjectId);
-                return (userModel == null || subjectModel == null) ? null : new SubUnsubSuccess
-                {
-                    UserId = userModel.Id,
-                    UserName = userModel.Name,
-                    SubjectId = subjectModel.Id,
-                    SubjectName = subjectModel.Name
-                };
+                return null;
             }
-            return null;
+            return await MakeSubUnsubSuccessAsync(subjectId, userId);
         }
 
         public async Task<SubUnsubSuccess?> UnsubscribeAsync(long subjectId, long userId)
         {
-            if (await _subjectManager.UnsubscribeAsync(subjectId, userId) == true)
+            if (await _subjectManager.UnsubscribeAsync(subjectId, userId) == false)
             {
-                UserModel? userModel = await _userManager.GetUserByIdAsync(userId);
-                SubjectModel? subjectModel = await _subjectManager.GetSubjectByIdAsync(subjectId);
-                return (userModel == null || subjectModel == null) ? null : new SubUnsubSuccess
-                {
-                    UserId = userModel.Id,
-                    UserName = userModel.Name,
-                    SubjectId = subjectModel.Id,
-                    SubjectName = subjectModel.Name
-                };
+                return null;
             }
-            return null;
+            return await MakeSubUnsubSuccessAsync(subjectId, userId);
+        }
+
+        public async Task<bool> IsItOkToSubscribe(long subjectId, long userId)
+        {
+            SubjectModel? subjectModel = await _subjectManager.GetSubjectByIdAsync(subjectId);
+            UserModel? userModel = await _userManager.GetUserByIdAsync(userId);
+
+            if (subjectModel == null || userModel == null)
+            {
+                return false;
+            }
+
+            bool IsUserInSubject = subjectModel.UserIds.Contains(userId);
+            bool IsSubjectInUser = userModel.SubjectIds.Contains(subjectId);
+            return !IsUserInSubject && !IsSubjectInUser;
+        }
+
+        public async Task<bool> IsItOkToUnsubscribe(long subjectId, long userId)
+        {
+            SubjectModel? subjectModel = await _subjectManager.GetSubjectByIdAsync(subjectId);
+            UserModel? userModel = await _userManager.GetUserByIdAsync(userId);
+
+            if (subjectModel == null || userModel == null)
+            {
+                return false;
+            }
+
+            bool IsUserInSubject = subjectModel.UserIds.Contains(userId);
+            bool IsSubjectInUser = userModel.SubjectIds.Contains(subjectId);
+            return IsUserInSubject && IsSubjectInUser;
+        }
+
+        private async Task<SubUnsubSuccess?> MakeSubUnsubSuccessAsync(long subjectId, long userId)
+        {
+            SubjectModel? subjectModel = await _subjectManager.GetSubjectByIdAsync(subjectId);
+            UserModel? userModel = await _userManager.GetUserByIdAsync(userId);
+            return (userModel == null || subjectModel == null) ? null : new SubUnsubSuccess
+            {
+                UserId = userModel.Id,
+                UserName = userModel.Name,
+                SubjectId = subjectModel.Id,
+                SubjectName = subjectModel.Name
+            };
         }
     }
 }

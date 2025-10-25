@@ -15,5 +15,9 @@ namespace PostIt.Domain.Interfaces.IBusiness
         public Task<SubUnsubSuccess?> SubscribeAsync(long subjectId, long userId);
 
         public Task<SubUnsubSuccess?> UnsubscribeAsync(long subjectId, long userId);
+
+        public Task<bool> IsItOkToSubscribe(long subjectId, long userId);
+
+        public Task<bool> IsItOkToUnsubscribe(long subjectId, long userId);
     }
 }
