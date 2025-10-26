@@ -2,7 +2,6 @@
 using PostIt.Domain.Interfaces.IManagers;
 using PostIt.Domain.Models;
 using PostIt.Domain.Models.Requests;
-using PostIt.Domain.Models.Responses;
 
 namespace PostIt.Domain.Business
 {
@@ -10,10 +9,16 @@ namespace PostIt.Domain.Business
     public class UserBusiness : IUserBusiness
     {
         private readonly IUserManager _userManager;
+        private readonly ISubjectManager _subjectManager;
+        private readonly IPostManager _postManager;
+        private readonly ICommentManager _commentManager;
 
-        public UserBusiness(IUserManager userManager)
+        public UserBusiness(IUserManager userManager, ISubjectManager subjectManager, IPostManager postManager, ICommentManager commentManager)
         {
             _userManager = userManager;
+            _subjectManager = subjectManager;
+            _postManager = postManager;
+            _commentManager = commentManager;
         }
 
         public async Task<UserModel?> GetUserByIdAsync(long id)
@@ -49,6 +54,28 @@ namespace PostIt.Domain.Business
 
         public async Task<UserModel?> UnactivateConnectedUserAsync(long id)
         {
+            UserModel? userToUnactivate = await GetUserByIdAsync(id);
+
+            if (userToUnactivate == null)
+            {
+                return null;
+            }
+
+            foreach (long postId in userToUnactivate.PostIds)
+            {
+                await _postManager.UnactivatePostAsync(postId);
+            }
+
+            foreach (long commentId in userToUnactivate.CommentIds)
+            {
+                await _commentManager.UnactivateCommentAsync(commentId);
+            }
+
+            foreach (long subjectId in userToUnactivate.SubjectIds)
+            {
+                await _subjectManager.UnsubscribeAsync(subjectId, id);
+            }
+
             return await _userManager.UnactivateConnectedUserAsync(id) ?? null;
         }
 
