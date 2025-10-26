@@ -15,7 +15,7 @@ namespace PostIt.Database.Managers
 
         public async Task<UserModel?> RegisterAsync(UserModel userToRegister)
         {
-            var user = new User
+            User user = new User
             {
                 Name = userToRegister.Name,
                 Email = userToRegister.Email,
@@ -27,7 +27,7 @@ namespace PostIt.Database.Managers
             _postItDbContext.Users.Add(user);
             await _postItDbContext.SaveChangesAsync();
 
-            var userRegistered = new UserModel
+            UserModel userRegistered = new UserModel
             {
                 Id = user.Id,
                 Name = user.Name,

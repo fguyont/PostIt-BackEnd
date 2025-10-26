@@ -31,7 +31,7 @@ namespace PostIt.Database.Managers
                 .Include(u => u.Posts.Where(p => p.IsActive == true))
                 .Include(u => u.Comments.Where(c => c.IsActive == true))
                 .Include(u => u.Subjects)
-                .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower() && u.IsActive == true);
+                .FirstOrDefaultAsync(u => u.Email.Equals(email) && u.IsActive == true);
 
             return (userToGet != null) ? FromUserToUserModel(userToGet) : null;
         }
@@ -62,27 +62,15 @@ namespace PostIt.Database.Managers
 
         public async Task<UserModel?> UnactivateConnectedUserAsync(long id)
         {
-            User? userToUnactivate = await _postItDbContext.Users.Include(u => u.Subjects).FirstOrDefaultAsync(u => u.Id == id && u.IsActive == true);
+            User? userToUnactivate = await _postItDbContext.Users
+                .Include(u => u.Posts)
+                .Include(u => u.Comments)
+                .Include(u => u.Subjects)
+                .FirstOrDefaultAsync(u => u.Id == id && u.IsActive == true);
 
             if (userToUnactivate == null)
             {
                 return null;
-            }
-
-            userToUnactivate.Subjects.Clear();
-
-            List<Post> postsToUnactivate = _postItDbContext.Posts.Where(p => p.UserId == id && p.IsActive == true).ToList();
-
-            foreach (Post post in postsToUnactivate)
-            {
-                post.IsActive = false;
-            }
-
-            List<Comment> commentsToUnactivate = _postItDbContext.Comments.Where(c => c.PostId == id && c.IsActive == true).ToList();
-
-            foreach (Comment comment in commentsToUnactivate)
-            {
-                comment.IsActive = false;
             }
 
             userToUnactivate.IsActive = false;
@@ -134,7 +122,9 @@ namespace PostIt.Database.Managers
 
         public async Task<bool> DoesUserExistAsync(string name, string email)
         {
-            User? userToFind = await _postItDbContext.Users.FirstOrDefaultAsync(u => (u.Name.ToLower().Equals(name.ToLower()) || u.Email.Equals(email)) && u.IsActive == true);
+            User? userToFind = await _postItDbContext.Users
+                .FirstOrDefaultAsync(u => u.Name.ToLower().Equals(name.ToLower()) 
+                || u.Email.ToLower().Equals(email.ToLower()));
 
             return userToFind != null;
         }
