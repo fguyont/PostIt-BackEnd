@@ -24,10 +24,10 @@ namespace PostIt.Domain.Models
 
         public bool IsActive { get; set; }
 
-        public List<long> SubjectIds { get; set; } = new List<long>();
+        public ICollection<long> PostIds { get; set; } = new List<long>();
 
-        public List<long> PostIds { get; set; } = new List<long>();
+        public ICollection<long> CommentIds { get; set; } = new List<long>();
 
-        public List<long> CommentIds { get; set; } = new List<long>();
+        public ICollection<long> SubjectIds { get; set; } = new List<long>();
     }
 }

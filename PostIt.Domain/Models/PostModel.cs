@@ -20,14 +20,14 @@ namespace PostIt.Domain.Models
 
         public bool IsActive { get; set; }
 
-        public long SubjectId { get; set; }
+        public required long SubjectId { get; set; }
 
         public required string SubjectName { get; set; }
 
-        public long UserId { get; set; }
+        public required long UserId { get; set; }
 
         public required string UserName { get; set; }
 
-        public List<long> CommentIds { get; set; } = new List<long>();
+        public ICollection<long> CommentIds { get; set; } = new List<long>();
     }
 }

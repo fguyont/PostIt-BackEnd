@@ -16,11 +16,11 @@ namespace PostIt.Domain.Models
 
         public bool IsActive { get; set; }
 
-        public long PostId { get; set; }
+        public required long PostId { get; set; }
 
         public required string PostTitle { get; set; }
 
-        public long UserId { get; set; }
+        public required long UserId { get; set; }
 
         public required string UserName { get; set; }
     }

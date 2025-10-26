@@ -35,7 +35,10 @@ namespace PostIt.Domain.Business
                 Password = BCrypt.HashPassword(registerUserRequest.Password),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                IsActive = true
+                IsActive = true,
+                PostIds = new List<long>(),
+                CommentIds = new List<long>(),
+                SubjectIds = new List<long>()
             };
 
             if (await _authManager.RegisterAsync(userToRegister) == null)

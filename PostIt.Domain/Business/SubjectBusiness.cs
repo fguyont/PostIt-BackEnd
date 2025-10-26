@@ -31,13 +31,19 @@ namespace PostIt.Domain.Business
             return await _subjectManager.CreateSubjectAsync(new SubjectModel
             {
                 Name = createSubjectRequest.Name,
-                Description = createSubjectRequest.Description
+                Description = createSubjectRequest.Description,
+                PostIds = new List<long>(),
+                UserIds = new List<long>()
             }
             ) ?? null;
         }
 
         public async Task<SubUnsubSuccess?> SubscribeAsync(long subjectId, long userId)
         {
+            if (await IsItOkToSubscribe(subjectId, userId) == false)
+            {
+                return null;
+            }
             if (await _subjectManager.SubscribeAsync(subjectId, userId) == false)
             {
                 return null;
@@ -47,6 +53,10 @@ namespace PostIt.Domain.Business
 
         public async Task<SubUnsubSuccess?> UnsubscribeAsync(long subjectId, long userId)
         {
+            if (await IsItOkToUnsubscribe(subjectId, userId) == false)
+            {
+                return null;
+            }
             if (await _subjectManager.UnsubscribeAsync(subjectId, userId) == false)
             {
                 return null;

@@ -24,11 +24,11 @@ namespace PostIt.Database.EntityModels
 
         public bool IsActive { get; set; }
 
-        public long SubjectId { get; set; }
+        public required long SubjectId { get; set; }
 
         public virtual required Subject Subject { get; set; }
 
-        public long UserId { get; set; }
+        public required long UserId { get; set; }
 
         public virtual required User User { get; set; }
 

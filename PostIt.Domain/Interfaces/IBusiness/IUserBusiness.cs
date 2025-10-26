@@ -1,6 +1,5 @@
 ﻿using PostIt.Domain.Models;
 using PostIt.Domain.Models.Requests;
-using PostIt.Domain.Models.Responses;
 
 namespace PostIt.Domain.Interfaces.IBusiness
 {

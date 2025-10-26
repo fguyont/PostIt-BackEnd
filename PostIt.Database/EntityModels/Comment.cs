@@ -20,11 +20,11 @@ namespace PostIt.Database.EntityModels
 
         public bool IsActive { get; set; }
 
-        public long PostId { get; set; }
+        public required long PostId { get; set; }
 
         public virtual required Post Post { get; set; }
 
-        public long UserId { get; set; }
+        public required long UserId { get; set; }
 
         public virtual required User User { get; set; }
     }

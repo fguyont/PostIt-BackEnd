@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PostIt.Domain.Business;
 using PostIt.Domain.Interfaces.IBusiness;
 using PostIt.Domain.Models.Requests;
 using PostIt.Domain.Models.Responses;

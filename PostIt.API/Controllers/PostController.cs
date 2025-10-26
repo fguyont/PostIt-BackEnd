@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PostIt.Database.EntityModels;
 using PostIt.Domain.Interfaces.IBusiness;
 using PostIt.Domain.Models;
 using PostIt.Domain.Models.Requests;
-using PostIt.Domain.Models.Responses;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace PostIt.API.Controllers
 {

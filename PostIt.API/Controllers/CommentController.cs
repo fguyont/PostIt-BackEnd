@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PostIt.Domain.Business;
 using PostIt.Domain.Interfaces.IBusiness;
 using PostIt.Domain.Models;
 using PostIt.Domain.Models.Requests;
-using PostIt.Domain.Models.Responses;
 using System.Security.Claims;
 
 namespace PostIt.API.Controllers
@@ -100,7 +98,7 @@ namespace PostIt.API.Controllers
             string? userEmail = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
             if (userEmail == null)
             {
-                return BadRequest(new { message = "Connected user not found." });
+                return BadRequest(new { message = "Connected user email not found." });
             }
 
             UserModel? userModel = await _userBusiness.GetUserByEmailAsync(userEmail);

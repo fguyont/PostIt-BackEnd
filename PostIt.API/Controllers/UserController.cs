@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using PostIt.Domain.Interfaces.IBusiness;
 using PostIt.Domain.Models;
 using PostIt.Domain.Models.Requests;
-using PostIt.Domain.Models.Responses;
 using System.Security.Claims;
 
 namespace PostIt.API.Controllers
